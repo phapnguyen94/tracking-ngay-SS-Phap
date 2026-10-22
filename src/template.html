@@ -296,6 +296,9 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 .xbtn{flex:none;align-self:flex-start;border:1px solid var(--orange-line);background:var(--orange-soft);color:var(--orange);font-weight:700;font-size:13px;border-radius:10px;padding:8px 14px;cursor:pointer;font-family:inherit}
 #snap tr.gr th{text-align:center;font-size:10px;color:var(--indigo);border-bottom:1px solid var(--line);padding-bottom:3px}
 #snapw{overflow-x:auto}
+#zbox .zsum{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 10px}.zc{padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:13px}.zc b{font-size:18px}.zc i{font-style:normal;color:var(--teal);font-weight:700}.zc em{font-style:normal;color:var(--coral);font-weight:700}
+.zc.on{border-color:rgba(182,156,255,.6)}.zc.off{border-color:rgba(52,211,181,.55)}
+.foc.f-zon,.foc.f-zoff{cursor:pointer}
 </style>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -338,6 +341,7 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
   <div id="hero"></div>
   <div class="focus" id="foc"></div>
   <div class="kpis" id="kpis"></div>
+  <div class="card pad" id="zbox"></div>
   <div class="grid2"><div class="card pad" id="chDD"></div><div class="card pad" id="chHr"></div></div>
 </section>
 
@@ -508,7 +512,7 @@ function renderKpi(){
     return '<div class="foc card '+cls+'"><div class="fh">'+ic(ico)+'<span>'+lab+'</span></div><div class="fn"><b>'+n(need)+'</b><span>quầy cần thêm</span></div><div class="pb"><i style="width:'+Math.min(100,pp)+'%"></i></div><div class="fs">'+(D.hasToday&&isT?'Đã chốt '+n(done)+' / '+n(tot)+' quầy':'Cần chốt '+n(tot)+' quầy lịch '+dlab(st.day))+' • '+sub+'</div></div>'}
 var zon=0,zoff=0,zonc=0,zoffc=0;
   L.forEach(function(k){if(k.nord===0){var io=k.cb.some(function(c){return c.indexOf('P0')===0});if(io){zon++;zonc+=k.cn}else{zoff++;zoffc+=k.cn}}});
-  function zt(cls,lab,c,ct){return '<div class="foc card '+cls+'"><div class="fh">'+ic('x')+'<span>'+lab+'</span></div><div class="fn"><b>'+n(c)+'</b><span>quầy chưa mua từ đầu T10</span></div><div class="fs">Chưa có đơn nào đến '+D.ordTo+' • CT ngày '+mt(ct)+' đang bỏ ngỏ</div></div>'}
+  function zt(cls,lab,c,ct){return '<div class="foc card '+cls+'" onclick="document.getElementById(\'zbox\').scrollIntoView({behavior:\'smooth\'})"><div class="fh">'+ic('x')+'<span>'+lab+'</span></div><div class="fn"><b>'+n(c)+'</b><span>quầy chưa mua từ đầu T10</span></div><div class="fs">Chưa có đơn nào đến '+D.ordTo+' • CT ngày '+mt(ct)+' đang bỏ ngỏ</div></div>'}
   $('foc').innerHTML=ft('f-hv','award','Chốt hội viên',hv,hvb,'CT ngày '+mt(hcn))+
     ft('f-on','cart','Combo ON (P02 · P03 · P04)',on,onb,'P02 '+pm.P02+' · P03 '+pm.P03+' · P04 '+pm.P04)+
     ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo')+zt('f-zon','Chưa mua T10 · quầy ON',zon,zonc)+zt('f-zoff','Chưa mua T10 · quầy OFF',zoff,zoffc);
@@ -630,6 +634,30 @@ function dlXlsx(sh,base){
   var bl=new Blob([u],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),a=document.createElement('a'),nm=(base+'_'+D.ordTo).replace(/[^0-9A-Za-zÀ-ỹ]+/g,'_')+'.xlsx';
   a.href=URL.createObjectURL(bl);a.download=nm;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},500)}
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',function(){try{renderSnap()}catch(e){}});
+
+var ZLIST=null;
+function renderZ(){
+  var isT=st.day===TDOM,live=isT&&D.hasToday,L=base(),rows=[];
+  L.forEach(function(k){var first=live?(k.nord===k.tho):(k.nord===0);if(!first)return;
+    var io=k.cb.some(function(c){return c.indexOf('P0')===0});rows.push({k:k,on:io,b:live&&k.tho>0})});
+  var c={on:[0,0],off:[0,0]};rows.forEach(function(r){c[r.on?'on':'off'][r.b?0:1]++});
+  var g=st.zg||'all',b=st.zb||'all';
+  var F=rows.filter(function(r){return (g==='all'||(g==='on')===r.on)&&(b==='all'||(b==='yes')===r.b)}).sort(function(a,b2){return a.k.dd-b2.k.dd||b2.k.cn-a.k.cn});
+  ZLIST=[['DDKD','Mã KH','Tên KH','Địa chỉ','Phường','Nhóm','Lịch','CT ngày (đ)','Hôm nay','Doanh số hôm nay (đ)','Số đơn hôm nay'].concat([])].concat(F.map(function(r){var k=r.k;return [DDL[k.dd],k.ma,k.ten,k.dc,k.ph,r.on?'ON':'OFF',lichTxt(k),k.cn,live?(r.b?'Có mua':'Chưa mua'):'Chưa tới ngày',k.tha,k.tho]}));
+  var h='<div class="ey">Chi tiết quầy</div><div class="sech"><div class="ib o" data-ic="x"></div><div class="t">Quầy chưa mua T10 <small>lịch '+dlab(st.day)+(live?' · chưa có đơn nào trước hôm nay, hôm nay có mua hay chưa':' · chưa có đơn nào từ đầu tháng')+'</small></div><div class="sp"></div><button class="xbtn" id="xbtn3" type="button">⬇ Xuất Excel</button></div>';
+  h+='<div class="zsum"><span class="zc on">Quầy ON <b>'+(c.on[0]+c.on[1])+'</b>'+(live?' · <i>có mua nay '+c.on[0]+'</i> · <em>chưa '+c.on[1]+'</em>':'')+'</span><span class="zc off">Quầy OFF <b>'+(c.off[0]+c.off[1])+'</b>'+(live?' · <i>có mua nay '+c.off[0]+'</i> · <em>chưa '+c.off[1]+'</em>':'')+'</span></div>';
+  h+='<div class="filters"><select id="zg" aria-label="Nhóm"><option value="all">Nhóm: ON + OFF</option><option value="on">Chỉ quầy ON</option><option value="off">Chỉ quầy OFF</option></select><select id="zb" aria-label="Hôm nay"><option value="all">Hôm nay: tất cả</option><option value="yes">Hôm nay đã mua</option><option value="no">Hôm nay chưa mua</option></select></div>';
+  h+='<div class="scroll"><table><thead><tr><th>DDKD</th><th>KH</th><th>Nhóm</th><th>Lịch</th><th class="num">CT ngày</th><th>Hôm nay</th></tr></thead><tbody>';
+  F.slice(0,300).forEach(function(r){var k=r.k;
+    h+='<tr><td>'+esc(DDL[k.dd])+'</td><td><div class="kn">'+esc(k.ten)+'</div><div class="ka">'+k.ma+' · '+esc(k.dc)+', '+esc(k.ph)+'</div></td><td><span class="pill '+(r.on?'p-warn':'p-mute')+'">'+(r.on?'ON':'OFF')+'</span></td><td>'+esc(lichTxt(k))+'</td><td class="num">'+n(k.cn)+'</td><td>'+(live?(r.b?'<span class="pill p-good">Có mua '+m(k.tha)+' tr · '+k.tho+' đơn</span>':'<span class="pill p-bad">Chưa mua</span>'):'<span class="note">–</span>')+'</td></tr>'});
+  if(!F.length)h+='<tr><td colspan="6" class="note" style="padding:14px">Không có quầy khớp.</td></tr>';
+  h+='</tbody></table></div>'+(F.length>300?'<div class="note">Hiển thị 300/'+F.length+' quầy, xuất Excel để xem đủ.</div>':'');
+  var z=$('zbox');z.innerHTML=h;
+  if(z.querySelectorAll)Array.prototype.forEach.call(z.querySelectorAll('[data-ic]'),function(e){if(!e.firstChild)e.innerHTML=ic(e.getAttribute('data-ic'))});
+  $('zg').value=g;$('zb').value=b;
+  $('zg').addEventListener('change',function(){st.zg=this.value;renderZ()});$('zb').addEventListener('change',function(){st.zb=this.value;renderZ()});
+  $('xbtn3').addEventListener('click',function(){dlXlsx([{name:'Quay chua mua T10',rows:ZLIST}],'Quay_chua_mua_T10_'+dlab(st.day))});
+}
 function th(icn,txt,sub){return '<th class="num">'+(icn?ic(icn):'')+txt+(sub?'<small>'+sub+'</small>':'')+'</th>'}
 function renderTeam(){
   var all=dayKH(),isT=(st.day===TDOM),live=isT&&D.hasToday;
@@ -748,7 +776,7 @@ function renderR3(){
   h+='</tbody><tfoot>'+line('Cả team',T.t7,T.t8,T.t9,T.c9,T.ct,T.th,true)+'</tfoot>';
   $('r3').innerHTML=h;
 }
-function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderSnap();renderCharts();renderTeam();renderList(L);renderBars(L)}
+function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderSnap();renderZ();renderCharts();renderTeam();renderList(L);renderBars(L)}
 function reset(){st.lim=80;st.open=null}
 Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'),function(e){e.insertAdjacentHTML('afterbegin',ic(e.dataset.ic))});
 $('lg').innerHTML=ic('logo');
