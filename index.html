@@ -557,10 +557,10 @@ function renderCharts(){
 var SNAP=null;
 function renderSnap(){
   var isT=st.day===TDOM,live=isT&&D.hasToday,A=dayKH(),by={};
-  function mk(){return {kh:0,ct:0,th:0,buy:0,zon:0,zoff:0,hv:0,hvb:0,on:0,onb:0,off:0,offb:0,p2:0,p3:0,p4:0,mct:0,mth:0,mcl:0,mkh:0}}
+  function mk(){return {kh:0,ct:0,th:0,buy:0,zon:0,zoff:0,hv:0,hvb:0,on:0,onb:0,off:0,offb:0,p2:0,p3:0,p4:0,mct:0,mth:0,mcl:0,mkh:0,rb:0}}
   var T=mk();
   function add(o,k){var b=k.tha>0,pz=k.cb.filter(function(c){return c.indexOf('P0')===0}),io=pz.length>0,iof=k.cb.some(function(c){return c.indexOf('P0')!==0});
-    o.kh++;o.ct+=k.c0Day;o.th+=k.tha;if(b)o.buy++;if(k.nord===0){if(io)o.zon++;else o.zoff++}
+    o.kh++;o.ct+=k.c0Day;o.th+=k.tha;if(b)o.buy++;if(k.tho>0&&k.nord===k.tho)o.rb++;if(k.nord===0){if(io)o.zon++;else o.zoff++}
     if(k.hv==='Cần chốt HV'){o.hv++;if(b)o.hvb++}if(io){o.on++;if(b)o.onb++}if(iof){o.off++;if(b)o.offb++}
     pz.forEach(function(c){var q=c.slice(0,3);if(q==='P02')o.p2++;else if(q==='P03')o.p3++;else if(q==='P04')o.p4++})}
   K.forEach(function(k){var o=by[k.dd];if(!o){if(!A.some(function(x){return x.dd===k.dd}))return;o=by[k.dd]=mk()}o.mct+=k.ct;o.mth+=k.th;o.mcl+=k.cl;T.mct+=k.ct;T.mth+=k.th;T.mcl+=k.cl});
@@ -568,8 +568,8 @@ function renderSnap(){
   var rows=Object.keys(by).map(Number).sort(function(a,b){return by[b].ct-by[a].ct});
   function pcs(L){return pcStat(L)}
   var P=pcs(A);
-  var COLS=['DDKD','KH lịch','CT ngày (tr)','TH ngày (tr)','% đạt ngày','Thiếu ngày (tr)','KH đã mua nay','CT tháng (tr)','TH tháng (tr)','% tháng','Còn lại tháng (tr)','Chưa mua T10 - ON','Chưa mua T10 - OFF','Cần chốt HV','Combo ON cần thêm','Combo OFF cần thêm','PC nay','LPPC nay','KH cần P02','KH cần P03','KH cần P04'];
-  function vals(o,nm,p){var pp=pc(o.th,o.ct);return [nm,o.kh,o.ct/1e6,live?o.th/1e6:null,live?pp/100:null,live?Math.max(o.ct-o.th,0)/1e6:null,live?o.buy:null,o.mct/1e6,o.mth/1e6,pc(o.mth,o.mct)/100,o.mcl/1e6,o.zon,o.zoff,Math.max(o.hv-o.hvb,0),Math.max(o.on-o.onb,0),Math.max(o.off-o.offb,0),live?p.t.pc:null,(live&&p.t.pc)?+p.tl.toFixed(2):null,o.p2,o.p3,o.p4]}
+  var COLS=['DDKD','KH lịch','CT ngày (tr)','TH ngày (tr)','% đạt ngày','Thiếu ngày (tr)','KH chưa mua T10 nay có mua','CT tháng (tr)','TH tháng (tr)','% tháng','Còn lại tháng (tr)','Chưa mua T10 - ON','Chưa mua T10 - OFF','Cần chốt HV','Combo ON cần thêm','Combo OFF cần thêm','PC nay','LPPC nay','KH cần P02','KH cần P03','KH cần P04'];
+  function vals(o,nm,p){var pp=pc(o.th,o.ct);return [nm,o.kh,o.ct/1e6,live?o.th/1e6:null,live?pp/100:null,live?Math.max(o.ct-o.th,0)/1e6:null,live?o.rb:null,o.mct/1e6,o.mth/1e6,pc(o.mth,o.mct)/100,o.mcl/1e6,o.zon,o.zoff,Math.max(o.hv-o.hvb,0),Math.max(o.on-o.onb,0),Math.max(o.off-o.offb,0),live?p.t.pc:null,(live&&p.t.pc)?+p.tl.toFixed(2):null,o.p2,o.p3,o.p4]}
   var data=[vals(T,'CẢ TEAM',P)];
   rows.forEach(function(i){data.push(vals(by[i],DDL[i],pcs(A.filter(function(k){return k.dd===i}))))});
   var kh=[['Mã KH','Tên KH','DDKD','Phường','Địa chỉ','Lịch','Tần suất','Lần viếng còn lại','CT ngày (đ)','TH hôm nay (đ)','Còn lại tháng (đ)','Số đơn T10','Hội viên','Combo','Nhóm','Chưa mua T10']];
@@ -588,7 +588,7 @@ function renderSnap(){
   var pt=pc(T.th,T.ct),pcl=pt>=100?'g':pt>=80?'w':'r';
   function box(k,v,nn,c){return '<div><div class="k">'+k+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+nn+'</div></div>'}
   h+='<div class="sn-t">'+box('Chỉ tiêu ngày',mt(T.ct),n(T.kh)+' KH lịch')+box('Thực hiện',live?mt(T.th):'–',live?'đã mua '+n(T.buy)+' KH':'chờ file đơn','g')+box('% đạt ngày',live?pt.toFixed(0)+'%':'–','',live?pcl:'')+box('Còn thiếu',live?mt(Math.max(T.ct-T.th,0)):'–','trong ngày','r')+box('PC · LPPC',live?n(P.t.pc)+' · '+(P.t.pc?d1(P.tl):'–'):'–','TB '+WNAME[wdOf(st.day||TDOM)]+': '+d1(P.wpc)+' · '+(P.wpc?d1(P.wl):'–'))+box('Còn lại cả tháng',mt(T.mcl),'toàn bộ KH, đã trừ TH')+'</div>';
-  h+='<table><thead><tr class="gr"><th></th><th colspan="6">Trong ngày</th><th colspan="4">Cả tháng (toàn bộ KH)</th><th colspan="2">Chưa mua T10</th><th colspan="3">Cần thêm quầy</th><th colspan="2">Bán hàng</th></tr><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Đã mua<small>KH nay</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>%<small>tháng</small></th><th>Còn lại<small>triệu</small></th><th>ON<small>quầy</small></th><th>OFF<small>quầy</small></th><th>Chốt HV<small>quầy</small></th><th>Combo ON<small>quầy</small></th><th>Combo OFF<small>quầy</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
+  h+='<table><thead><tr class="gr"><th></th><th colspan="6">Trong ngày</th><th colspan="4">Cả tháng (toàn bộ KH)</th><th colspan="2">Chưa mua T10</th><th colspan="3">Cần thêm quầy</th><th colspan="2">Bán hàng</th></tr><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Chưa mua T10<small>nay có mua</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>%<small>tháng</small></th><th>Còn lại<small>triệu</small></th><th>ON<small>quầy</small></th><th>OFF<small>quầy</small></th><th>Chốt HV<small>quầy</small></th><th>Combo ON<small>quầy</small></th><th>Combo OFF<small>quầy</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
   data.forEach(function(r,ri){var nm=ri?r[0]:null;h+='<tr class="'+(ri===0?'tt':(st.dds.indexOf(r[0])>=0?'sel':''))+'">';
     for(var i=0;i<18;i++)h+=cell(i,r[i]);h+='</tr>'});
   h+='</tbody></table><div class="sn-f">ON = KH thuộc diện combo P02/P03/P04; OFF = KH thuộc combo Homey/HPC/Canu/Core. "Cần thêm" = số quầy chưa có đơn hôm nay. "Chưa mua T10" = quầy lịch hôm nay chưa có đơn nào từ đầu tháng. Còn lại tháng đã trừ doanh số thực hiện. Còn lại tháng = tổng phần chưa đạt của từng KH/ngành (không bù phần vượt), nên có thể lớn hơn CT − TH. Nút Xuất Excel gồm 2 sheet: tổng quan DDKD và danh sách KH của ngày.</div>';
