@@ -238,13 +238,17 @@ details .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:6px;fon
 .foc .fn span{font-size:13px;font-weight:600;color:var(--muted)}
 .foc .pb{width:100%;height:7px;border-radius:9px;background:var(--line);overflow:hidden}.foc .pb i{display:block;height:100%;border-radius:9px;background:currentColor}
 .foc .fs{font-size:12.5px;color:var(--muted);line-height:1.4}
+.f-zon{color:var(--coral);border-color:rgba(255,122,133,.6);background:linear-gradient(160deg,var(--bad-bg),transparent 70%)}
+.f-zoff{color:var(--coral);border-color:rgba(255,122,133,.6);background:linear-gradient(160deg,var(--bad-bg),transparent 70%)}
+.focus{grid-template-columns:repeat(6,1fr)!important}.focus>.foc{grid-column:span 2}.focus>.foc:nth-child(n+4){grid-column:span 3}@media(max-width:1180px){.focus{grid-template-columns:1fr 1fr!important}.focus>.foc,.focus>.foc:nth-child(n+4){grid-column:auto}}
+td.hl-z b{color:var(--coral)}
 .f-hv{color:var(--amber);border-color:rgba(251,191,36,.55);background:linear-gradient(160deg,var(--warn-bg),transparent 70%)}
 .f-on{color:var(--violet);border-color:rgba(182,156,255,.6);background:linear-gradient(160deg,rgba(182,156,255,.14),transparent 70%)}
 .f-off{color:var(--teal);border-color:rgba(52,211,181,.55);background:linear-gradient(160deg,var(--teal-soft),transparent 70%)}
 .foc .fh,.foc .fn b{color:inherit}
 td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 .sub2.need{color:var(--orange);font-weight:700}
-@media(max-width:760px){.focus{grid-template-columns:1fr;gap:10px}.foc{padding:14px}.foc .fn b{font-size:36px}}
+@media(max-width:760px){.focus{grid-template-columns:1fr!important;gap:10px}.foc{padding:14px}.foc .fn b{font-size:36px}}
 </style></head><body>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -452,9 +456,12 @@ function renderKpi(){
     if(k.hv==='Cần chốt HV'&&b)hvb++});
   function ft(cls,ico,lab,tot,done,sub){var need=Math.max(tot-done,0),pp=tot?done/tot*100:0;
     return '<div class="foc card '+cls+'"><div class="fh">'+ic(ico)+'<span>'+lab+'</span></div><div class="fn"><b>'+n(need)+'</b><span>quầy cần thêm</span></div><div class="pb"><i style="width:'+Math.min(100,pp)+'%"></i></div><div class="fs">'+(D.hasToday&&isT?'Đã chốt '+n(done)+' / '+n(tot)+' quầy':'Cần chốt '+n(tot)+' quầy lịch '+dlab(st.day))+' • '+sub+'</div></div>'}
+var zon=0,zoff=0,zonc=0,zoffc=0;
+  L.forEach(function(k){if(k.nord===0){var io=k.cb.some(function(c){return c.indexOf('P0')===0});if(io){zon++;zonc+=k.cn}else{zoff++;zoffc+=k.cn}}});
+  function zt(cls,lab,c,ct){return '<div class="foc card '+cls+'"><div class="fh">'+ic('x')+'<span>'+lab+'</span></div><div class="fn"><b>'+n(c)+'</b><span>quầy chưa mua từ đầu T10</span></div><div class="fs">Chưa có đơn nào đến '+D.ordTo+' • CT ngày '+mt(ct)+' đang bỏ ngỏ</div></div>'}
   $('foc').innerHTML=ft('f-hv','award','Chốt hội viên',hv,hvb,'CT ngày '+mt(hcn))+
     ft('f-on','cart','Combo ON (P02 · P03 · P04)',on,onb,'P02 '+pm.P02+' · P03 '+pm.P03+' · P04 '+pm.P04)+
-    ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo');
+    ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo')+zt('f-zon','Chưa mua T10 · quầy ON',zon,zonc)+zt('f-zoff','Chưa mua T10 · quầy OFF',zoff,zoffc);
   $('kpis').innerHTML=
    card('k-o','KH '+(none?'hết lịch T10':dlab(st.day)),'cal',n(L.length),(none?'F2 không còn tuần viếng của mình trong T10':nd+' DDKD • F2 '+F[2]+' · F4 '+F[4]+' · F8 '+F[8]))+
    card('k-o','Chỉ tiêu phải bán ngày','target',none?'—':mt(cn),none?'Không có ngày viếng để chia chỉ tiêu':n(cn)+' đ • còn lại ÷ số lần viếng của từng KH')+
@@ -467,12 +474,14 @@ function renderTeam(){
   var all=dayKH(),isT=(st.day===TDOM),live=isT&&D.hasToday;
   var by={};DDL.forEach(function(_,i){by[i]=[]});all.forEach(function(k){by[k.dd].push(k)});
   function agg(L){
-    var o={kh:L.length,cn:0,tha:0,hv:0,hvb:0,hds:0,hvs:0,cb:0,cbb:0,cbp:0,on:0,onb:0,off:0,offb:0};
+    var o={kh:L.length,cn:0,tha:0,hv:0,hvb:0,hds:0,hvs:0,cb:0,cbb:0,cbp:0,on:0,onb:0,off:0,offb:0,zon:0,zoff:0,zonc:0,zoffc:0};
     L.forEach(function(k){o.cn+=k.cn;o.tha+=k.tha;var bought=k.tho>0;
       if(k.hv==='Cần chốt HV'){o.hv++;o.hds+=k.hvds;if(bought){o.hvb++;o.hvs+=k.tha}}
       if(k.cb.length){o.cb++;if(bought)o.cbb++}
       if(k.cb.some(function(c){return c.indexOf('P0')===0}))o.cbp++;
-      if(k.cb.some(function(c){return c.indexOf('P0')===0})){o.on++;if(bought)o.onb++}
+      var isOn=k.cb.some(function(c){return c.indexOf('P0')===0});
+      if(k.nord===0){if(isOn){o.zon++;o.zonc+=k.cn}else{o.zoff++;o.zoffc+=k.cn}}
+      if(isOn){o.on++;if(bought)o.onb++}
       if(k.cb.some(function(c){return c.indexOf('P0')!==0})){o.off++;if(bought)o.offb++}});
     o.p=pcStat(L);return o}
   var rows=DDL.map(function(_,i){return i}).filter(function(i){return by[i].length}).map(function(i){var o=agg(by[i]);o.i=i;return o});
@@ -483,13 +492,15 @@ function renderTeam(){
     var pt=pc(o.tha,o.cn),p=o.p,nm=WNAME[wdOf(st.day||TDOM)];
     return '<td class="num" data-l="KH có lịch">'+n(o.kh)+'</td>'+
      '<td class="num" data-l="CT ngày (triệu)"><b>'+m(o.cn)+'</b>'+(tot?'':'<div class="db"><i style="width:'+(o.cn/mx*100)+'%"></i></div>')+'</td>'+
-     '<td class="num wide" data-l="% TH ngày">'+(live?'<span class="pr"><span class="pb c-'+cls(pt)+'"><i style="width:'+Math.min(100,pt)+'%"></i></span><b>'+pt.toFixed(0)+'%</b></span><span class="sub2">TH '+m(o.tha)+' / CT '+m(o.cn)+' tr</span>':'<b>–</b><span class="sub2">'+(isT?'Chưa có đơn '+TDTXT:'Chưa tới ngày')+'</span>')+'</td>'+
+     '<td class="num" data-l="Thực hiện (triệu)"><b>'+(live?m(o.tha):'–')+'</b><span class="sub2">'+(live?'còn thiếu '+m(Math.max(o.cn-o.tha,0))+' tr':(isT?'Chưa có đơn '+TDTXT:'Chưa tới ngày'))+'</span></td>'+
+     '<td class="num" data-l="% đạt ngày">'+(live?'<span class="pr"><span class="pb c-'+cls(pt)+'"><i style="width:'+Math.min(100,pt)+'%"></i></span><b>'+pt.toFixed(0)+'%</b></span>':'<b>–</b>')+'</td>'+
+     '<td class="num hl-z" data-l="Chưa mua từ đầu T10"><b>'+n(o.zon+o.zoff)+'</b><span class="sub2">ON '+n(o.zon)+' · OFF '+n(o.zoff)+'</span></td>'+
      '<td class="num" data-l="Chốt HV (nay / cần)"><b>'+(live?n(o.hvb):'–')+'</b> / '+n(o.hv)+'<span class="sub2">'+(live?'DS nay '+m(o.hvs)+' tr · ':'')+'thiếu '+m(o.hds)+' tr</span></td>'+
      '<td class="num hl-on" data-l="Combo ON (nay / cần)"><b>'+(live?n(o.onb):'–')+'</b> / '+n(o.on)+'<span class="sub2 need">cần thêm '+n(Math.max(o.on-o.onb,0))+' quầy</span></td>'+
      '<td class="num hl-off" data-l="Combo OFF (nay / cần)"><b>'+(live?n(o.offb):'–')+'</b> / '+n(o.off)+'<span class="sub2 need">cần thêm '+n(Math.max(o.off-o.offb,0))+' quầy</span></td>'+
      '<td class="num" data-l="PC hôm nay"><b>'+(live?n(p.t.pc):'–')+'</b><span class="sub2">TB '+nm+': '+d1(p.wpc)+'/ngày</span></td>'+
      '<td class="num" data-l="LPPC hôm nay"><b>'+(live&&p.t.pc?d1(p.tl):'–')+'</b><span class="sub2">TB '+nm+': '+(p.wpc?d1(p.wl):'–')+'</span></td>'}
-  var h='<thead><tr><th>DDKD</th>'+th('users','KH','có lịch')+th('target','CT ngày','triệu')+th('chart','% TH ngày','TH nay / CT')+th('award','Chốt HV','nay / cần')+th('cart','Combo ON','nay / cần')+th('cart','Combo OFF','nay / cần')+th('phone','PC','hôm nay')+th('receipt','LPPC','hôm nay')+'</tr></thead><tbody>';
+  var h='<thead><tr><th>DDKD</th>'+th('users','KH','có lịch')+th('target','CT ngày','triệu')+th('chart','Thực hiện','triệu')+th('chart','% đạt','ngày')+th('x','Chưa mua T10','ON · OFF')+th('award','Chốt HV','nay / cần')+th('cart','Combo ON','nay / cần')+th('cart','Combo OFF','nay / cần')+th('phone','PC','hôm nay')+th('receipt','LPPC','hôm nay')+'</tr></thead><tbody>';
   rows.forEach(function(o){h+='<tr class="rw'+(st.dds.indexOf(DDL[o.i])>=0?' sel':'')+'" data-dd="'+o.i+'" tabindex="0"><td><span class="av">'+esc(ini(DDL[o.i]))+'</span><span class="nm">'+esc(DDL[o.i])+'</span></td>'+cells(o,false)+'</tr>'});
   h+='</tbody><tfoot><tr><td>Cả team</td>'+cells(T,true)+'</tr></tfoot>';
   $('tm').innerHTML=h;
