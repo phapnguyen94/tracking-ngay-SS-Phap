@@ -97,11 +97,11 @@ button:focus-visible,select:focus-visible,input:focus-visible,tr[tabindex]:focus
 
 /* KPI */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
-.kpi{position:relative;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;overflow:hidden;border-radius:16px}
+.kpi{container-type:inline-size;position:relative;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;overflow:hidden;border-radius:16px}
 .kpi::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#5b63e6,#f97316)}
 .kpi .l{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding-right:46px;line-height:1.3}
 .ki{position:absolute;right:14px;top:16px;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;border:1px solid;font-size:19px}
-.kpi .v{font-size:clamp(26px,3.2vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .v{font-size:clamp(20px,12cqi,32px);white-space:nowrap;font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-top:8px;font-variant-numeric:tabular-nums}
 .kpi .n{font-size:13px;color:var(--muted);line-height:1.4}
 .kpi .pb{height:6px;margin-top:2px;width:100%}
 .k-o .v{color:var(--orange)} .k-o .ki{color:var(--orange);border-color:var(--orange-line);background:var(--orange-soft)}
@@ -199,7 +199,7 @@ details .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:6px;fon
   .kpi{padding:14px 12px 12px;gap:4px}
   .kpi .l{font-size:10.5px;padding-right:0;min-height:28px}
   .ki{display:none}
-  .kpi .v{font-size:21px;margin-top:2px;word-break:break-word}
+  .kpi .v{font-size:clamp(18px,13cqi,24px);margin-top:2px}
   .kpi .n{font-size:11.5px}
   .kpi:last-child:nth-child(odd){grid-column:1/-1}
   #tm{min-width:0}
@@ -230,6 +230,21 @@ details .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:6px;fon
   #tb .pr{justify-content:flex-start}
 }
 .ghost{white-space:nowrap;flex:none}.sech .t small{display:block;white-space:normal}
+
+.focus{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.foc{padding:16px 18px;display:flex;flex-direction:column;gap:8px;border-radius:16px;border:1.5px solid var(--line)}
+.foc .fh{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+.foc .fn{display:flex;align-items:baseline;gap:8px}.foc .fn b{font-size:clamp(34px,16cqi,46px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.foc .fn span{font-size:13px;font-weight:600;color:var(--muted)}
+.foc .pb{width:100%;height:7px;border-radius:9px;background:var(--line);overflow:hidden}.foc .pb i{display:block;height:100%;border-radius:9px;background:currentColor}
+.foc .fs{font-size:12.5px;color:var(--muted);line-height:1.4}
+.f-hv{color:var(--amber);border-color:rgba(251,191,36,.55);background:linear-gradient(160deg,var(--warn-bg),transparent 70%)}
+.f-on{color:var(--violet);border-color:rgba(182,156,255,.6);background:linear-gradient(160deg,rgba(182,156,255,.14),transparent 70%)}
+.f-off{color:var(--teal);border-color:rgba(52,211,181,.55);background:linear-gradient(160deg,var(--teal-soft),transparent 70%)}
+.foc .fh,.foc .fn b{color:inherit}
+td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
+.sub2.need{color:var(--orange);font-weight:700}
+@media(max-width:760px){.focus{grid-template-columns:1fr;gap:10px}.foc{padding:14px}.foc .fn b{font-size:36px}}
 </style></head><body>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -268,6 +283,7 @@ details .body{padding:0 18px 18px;display:flex;flex-direction:column;gap:6px;fon
 
 <section id="s-kpi">
   <div class="ey" id="kt">Tổng quan</div>
+  <div class="focus" id="foc"></div>
   <div class="kpis" id="kpis"></div>
 </section>
 
@@ -421,6 +437,7 @@ function renderSteps(){
     var on=st.dds.indexOf(o.d)>=0;
     return '<button class="ck" role="checkbox" data-n="'+esc(o.d)+'" aria-checked="'+on+'"><span class="bx"><svg viewBox="0 0 12 12"><path d="M2 6.5l2.6 2.6L10 3.5"/></svg></span>'+esc(o.d)+' <small>'+o.c+' KH</small></button>'}).join('');
 }
+function mt(x){return (Math.round(x/1e5)/10).toLocaleString('vi-VN',{minimumFractionDigits:1,maximumFractionDigits:1})+' tr'}
 function renderKpi(){
   var L=base(),ct=0,th=0,cl=0,cn=0,hv=0,hcn=0,cb=0,tha=0,dd={},F={2:0,4:0,8:0};
   L.forEach(function(k){dd[k.dd]=1;F[k.f]=(F[k.f]||0)+1;tha+=k.tha;ct+=k.ct;th+=k.th;cl+=k.cl;cn+=k.cn;if(k.hv==='Cần chốt HV'){hv++;hcn+=k.cn}if(k.cb.length)cb++});
@@ -428,25 +445,35 @@ function renderKpi(){
   $('kt').textContent='Tổng quan · '+(st.dds.length?st.dds.length+' DDKD đã chọn':'cả team')+' · '+dlab(st.day);
   function card(c,lab,ico,v,sub,extra){return '<div class="kpi card '+c+'"><div class="l">'+lab+'</div><div class="ki">'+ic(ico)+'</div><div class="v">'+v+'</div><div class="n">'+sub+'</div>'+(extra||'')+'</div>'}
   var pcv=(isT&&D.hasToday)?n(ps.t.pc)+' <span style="font-size:15px;color:var(--muted);font-weight:600">đơn</span>':'–';
+  var on=0,onb=0,off=0,offb=0,hvb=0,pm={P02:0,P03:0,P04:0};
+  L.forEach(function(k){var b=k.tha>0,p=k.cb.filter(function(c){return c.indexOf('P0')===0});
+    if(p.length){on++;if(b)onb++;p.forEach(function(c){pm[c.slice(0,3)]=(pm[c.slice(0,3)]||0)+1})}
+    if(k.cb.some(function(c){return c.indexOf('P0')!==0})){off++;if(b)offb++}
+    if(k.hv==='Cần chốt HV'&&b)hvb++});
+  function ft(cls,ico,lab,tot,done,sub){var need=Math.max(tot-done,0),pp=tot?done/tot*100:0;
+    return '<div class="foc card '+cls+'"><div class="fh">'+ic(ico)+'<span>'+lab+'</span></div><div class="fn"><b>'+n(need)+'</b><span>quầy cần thêm</span></div><div class="pb"><i style="width:'+Math.min(100,pp)+'%"></i></div><div class="fs">'+(D.hasToday&&isT?'Đã chốt '+n(done)+' / '+n(tot)+' quầy':'Cần chốt '+n(tot)+' quầy lịch '+dlab(st.day))+' • '+sub+'</div></div>'}
+  $('foc').innerHTML=ft('f-hv','award','Chốt hội viên',hv,hvb,'CT ngày '+mt(hcn))+
+    ft('f-on','cart','Combo ON (P02 · P03 · P04)',on,onb,'P02 '+pm.P02+' · P03 '+pm.P03+' · P04 '+pm.P04)+
+    ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo');
   $('kpis').innerHTML=
    card('k-o','KH '+(none?'hết lịch T10':dlab(st.day)),'cal',n(L.length),(none?'F2 không còn tuần viếng của mình trong T10':nd+' DDKD • F2 '+F[2]+' · F4 '+F[4]+' · F8 '+F[8]))+
-   card('k-o','Chỉ tiêu phải bán ngày','target',none?'—':n(cn)+' đ',none?'Không có ngày viếng để chia chỉ tiêu':'Còn lại ÷ số lần viếng còn lại của từng KH')+
-   card('k-t','Thực hiện hôm nay ('+TDTXT+')','chart',D.hasToday?n(tha)+' đ':'Chưa có',D.hasToday?(isT?'Đạt '+pc(tha,cn).toFixed(0)+'% CT ngày • còn thiếu '+n(Math.max(cn-tha,0))+' đ':'Doanh số ngày '+TDTXT+' của các KH đang lọc'):'Chưa có đơn ngày '+TDTXT+' (file đơn đến '+D.ordTo+'). Thả file đơn mới để cập nhật.',(D.hasToday&&isT)?'<div class="pb c-'+cls(pc(tha,cn))+'"><i style="width:'+Math.min(100,pc(tha,cn))+'%"></i></div>':'')+
-   card('k-c','Còn lại cả tháng','gauge',n(cl)+' đ','CT tháng '+n(ct)+' đ • TH '+n(th)+' đ','<div class="pb c-'+cls(p)+'"><i style="width:'+Math.min(100,p)+'%"></i></div>')+
-   card('k-i','PC hôm nay · LPPC','phone',pcv,(isT&&D.hasToday?'LPPC '+(ps.t.pc?d1(ps.tl):'–')+' • ':'')+'TB cùng '+WNAME[wdOf(st.day||TDOM)]+': '+d1(ps.wpc)+' đơn/ngày, LPPC '+(ps.wpc?d1(ps.wl):'–'))+
-   card('k-a','KH cần chốt hội viên','award',n(hv),'Chưa đạt thưởng • CT ngày '+n(hcn)+' đ')+
-   card('k-v','KH cần chốt combo','cart',n(cb),'Combo ON chưa đạt / thuộc combo mở mới');
+   card('k-o','Chỉ tiêu phải bán ngày','target',none?'—':mt(cn),none?'Không có ngày viếng để chia chỉ tiêu':n(cn)+' đ • còn lại ÷ số lần viếng của từng KH')+
+   card('k-t','Thực hiện hôm nay ('+TDTXT+')','chart',D.hasToday?mt(tha):'Chưa có',D.hasToday?(isT?'Đạt '+pc(tha,cn).toFixed(0)+'% CT ngày • còn thiếu '+n(Math.max(cn-tha,0))+' đ':'Doanh số ngày '+TDTXT+' của các KH đang lọc'):'Chưa có đơn ngày '+TDTXT+' (file đơn đến '+D.ordTo+'). Thả file đơn mới để cập nhật.',(D.hasToday&&isT)?'<div class="pb c-'+cls(pc(tha,cn))+'"><i style="width:'+Math.min(100,pc(tha,cn))+'%"></i></div>':'')+
+   card('k-c','Còn lại cả tháng','gauge',mt(cl),'CT tháng '+mt(ct)+' • TH '+mt(th),'<div class="pb c-'+cls(p)+'"><i style="width:'+Math.min(100,p)+'%"></i></div>')+
+   card('k-i','PC hôm nay · LPPC','phone',pcv,(isT&&D.hasToday?'LPPC '+(ps.t.pc?d1(ps.tl):'–')+' • ':'')+'TB cùng '+WNAME[wdOf(st.day||TDOM)]+': '+d1(ps.wpc)+' đơn/ngày, LPPC '+(ps.wpc?d1(ps.wl):'–'));
 }
 function th(icn,txt,sub){return '<th class="num">'+(icn?ic(icn):'')+txt+(sub?'<small>'+sub+'</small>':'')+'</th>'}
 function renderTeam(){
   var all=dayKH(),isT=(st.day===TDOM),live=isT&&D.hasToday;
   var by={};DDL.forEach(function(_,i){by[i]=[]});all.forEach(function(k){by[k.dd].push(k)});
   function agg(L){
-    var o={kh:L.length,cn:0,tha:0,hv:0,hvb:0,hds:0,hvs:0,cb:0,cbb:0,cbp:0};
+    var o={kh:L.length,cn:0,tha:0,hv:0,hvb:0,hds:0,hvs:0,cb:0,cbb:0,cbp:0,on:0,onb:0,off:0,offb:0};
     L.forEach(function(k){o.cn+=k.cn;o.tha+=k.tha;var bought=k.tho>0;
       if(k.hv==='Cần chốt HV'){o.hv++;o.hds+=k.hvds;if(bought){o.hvb++;o.hvs+=k.tha}}
       if(k.cb.length){o.cb++;if(bought)o.cbb++}
-      if(k.cb.some(function(c){return c.indexOf('P0')===0}))o.cbp++});
+      if(k.cb.some(function(c){return c.indexOf('P0')===0}))o.cbp++;
+      if(k.cb.some(function(c){return c.indexOf('P0')===0})){o.on++;if(bought)o.onb++}
+      if(k.cb.some(function(c){return c.indexOf('P0')!==0})){o.off++;if(bought)o.offb++}});
     o.p=pcStat(L);return o}
   var rows=DDL.map(function(_,i){return i}).filter(function(i){return by[i].length}).map(function(i){var o=agg(by[i]);o.i=i;return o});
   rows.sort(function(a,b){return b.cn-a.cn||b.kh-a.kh});
@@ -458,10 +485,11 @@ function renderTeam(){
      '<td class="num" data-l="CT ngày (triệu)"><b>'+m(o.cn)+'</b>'+(tot?'':'<div class="db"><i style="width:'+(o.cn/mx*100)+'%"></i></div>')+'</td>'+
      '<td class="num wide" data-l="% TH ngày">'+(live?'<span class="pr"><span class="pb c-'+cls(pt)+'"><i style="width:'+Math.min(100,pt)+'%"></i></span><b>'+pt.toFixed(0)+'%</b></span><span class="sub2">TH '+m(o.tha)+' / CT '+m(o.cn)+' tr</span>':'<b>–</b><span class="sub2">'+(isT?'Chưa có đơn '+TDTXT:'Chưa tới ngày')+'</span>')+'</td>'+
      '<td class="num" data-l="Chốt HV (nay / cần)"><b>'+(live?n(o.hvb):'–')+'</b> / '+n(o.hv)+'<span class="sub2">'+(live?'DS nay '+m(o.hvs)+' tr · ':'')+'thiếu '+m(o.hds)+' tr</span></td>'+
-     '<td class="num" data-l="Combo (nay / KH)"><b>'+(live?n(o.cbb):'–')+'</b> / '+n(o.cb)+'<span class="sub2">ON chưa đạt '+n(o.cbp)+'</span></td>'+
+     '<td class="num hl-on" data-l="Combo ON (nay / cần)"><b>'+(live?n(o.onb):'–')+'</b> / '+n(o.on)+'<span class="sub2 need">cần thêm '+n(Math.max(o.on-o.onb,0))+' quầy</span></td>'+
+     '<td class="num hl-off" data-l="Combo OFF (nay / cần)"><b>'+(live?n(o.offb):'–')+'</b> / '+n(o.off)+'<span class="sub2 need">cần thêm '+n(Math.max(o.off-o.offb,0))+' quầy</span></td>'+
      '<td class="num" data-l="PC hôm nay"><b>'+(live?n(p.t.pc):'–')+'</b><span class="sub2">TB '+nm+': '+d1(p.wpc)+'/ngày</span></td>'+
      '<td class="num" data-l="LPPC hôm nay"><b>'+(live&&p.t.pc?d1(p.tl):'–')+'</b><span class="sub2">TB '+nm+': '+(p.wpc?d1(p.wl):'–')+'</span></td>'}
-  var h='<thead><tr><th>DDKD</th>'+th('users','KH','có lịch')+th('target','CT ngày','triệu')+th('chart','% TH ngày','TH nay / CT')+th('award','Chốt HV','nay / cần')+th('cart','Combo','nay / KH')+th('phone','PC','hôm nay')+th('receipt','LPPC','hôm nay')+'</tr></thead><tbody>';
+  var h='<thead><tr><th>DDKD</th>'+th('users','KH','có lịch')+th('target','CT ngày','triệu')+th('chart','% TH ngày','TH nay / CT')+th('award','Chốt HV','nay / cần')+th('cart','Combo ON','nay / cần')+th('cart','Combo OFF','nay / cần')+th('phone','PC','hôm nay')+th('receipt','LPPC','hôm nay')+'</tr></thead><tbody>';
   rows.forEach(function(o){h+='<tr class="rw'+(st.dds.indexOf(DDL[o.i])>=0?' sel':'')+'" data-dd="'+o.i+'" tabindex="0"><td><span class="av">'+esc(ini(DDL[o.i]))+'</span><span class="nm">'+esc(DDL[o.i])+'</span></td>'+cells(o,false)+'</tr>'});
   h+='</tbody><tfoot><tr><td>Cả team</td>'+cells(T,true)+'</tr></tfoot>';
   $('tm').innerHTML=h;
