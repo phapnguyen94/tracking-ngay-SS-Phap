@@ -274,7 +274,7 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 
 #hero{display:none}
 #snapw{margin-bottom:12px;overflow:hidden}
-#snap{width:960px;box-sizing:border-box;transform-origin:0 0;border-radius:20px;border:1.5px solid var(--line);background:linear-gradient(160deg,rgba(91,99,230,.14),rgba(249,115,22,.07) 55%,var(--panel));padding:22px 24px 16px}
+#snap{width:1220px;box-sizing:border-box;transform-origin:0 0;border-radius:20px;border:1.5px solid var(--line);background:linear-gradient(160deg,rgba(91,99,230,.14),rgba(249,115,22,.07) 55%,var(--panel));padding:22px 24px 16px}
 .sn-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
 .sn-h .a{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);font-weight:800}.sn-h h3{margin:4px 0 0;font-size:24px;font-weight:800;letter-spacing:-.01em}
 .sn-h .b{text-align:right;font-size:12px;color:var(--muted);line-height:1.5}.sn-h .b b{color:var(--fg)}
@@ -293,6 +293,9 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 #snap .pbx{display:inline-block;width:46px;height:7px;border-radius:6px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}#snap .pbx i{display:block;height:100%}
 #snap .zz{color:var(--coral);font-weight:800}#snap .vi{color:var(--violet);font-weight:700}#snap .te{color:var(--teal);font-weight:700}#snap .am{color:var(--amber);font-weight:700}
 .sn-f{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5}
+.xbtn{flex:none;align-self:flex-start;border:1px solid var(--orange-line);background:var(--orange-soft);color:var(--orange);font-weight:700;font-size:13px;border-radius:10px;padding:8px 14px;cursor:pointer;font-family:inherit}
+#snap tr.gr th{text-align:center;font-size:10px;color:var(--indigo);border-bottom:1px solid var(--line);padding-bottom:3px}
+#snapw{overflow-x:auto}
 </style></head><body>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -551,34 +554,79 @@ function renderCharts(){
   Array.prototype.forEach.call(document.querySelectorAll('#chDD [data-ic],#chHr [data-ic]'),function(e){if(!e.firstChild)e.innerHTML=ic(e.getAttribute('data-ic'))});
 }
 
+var SNAP=null;
 function renderSnap(){
   var isT=st.day===TDOM,live=isT&&D.hasToday,A=dayKH(),by={};
-  function mk(){return {kh:0,ct:0,th:0,buy:0,zon:0,zoff:0,hv:0,hvb:0,on:0,onb:0,off:0,offb:0,pcn:0}}
+  function mk(){return {kh:0,ct:0,th:0,buy:0,zon:0,zoff:0,hv:0,hvb:0,on:0,onb:0,off:0,offb:0,p2:0,p3:0,p4:0,mct:0,mth:0,mcl:0,mkh:0}}
   var T=mk();
-  function add(o,k){var b=k.tha>0,io=k.cb.some(function(c){return c.indexOf('P0')===0}),iof=k.cb.some(function(c){return c.indexOf('P0')!==0});
+  function add(o,k){var b=k.tha>0,pz=k.cb.filter(function(c){return c.indexOf('P0')===0}),io=pz.length>0,iof=k.cb.some(function(c){return c.indexOf('P0')!==0});
     o.kh++;o.ct+=k.c0Day;o.th+=k.tha;if(b)o.buy++;if(k.nord===0){if(io)o.zon++;else o.zoff++}
-    if(k.hv==='Cần chốt HV'){o.hv++;if(b)o.hvb++}if(io){o.on++;if(b)o.onb++}if(iof){o.off++;if(b)o.offb++}}
+    if(k.hv==='Cần chốt HV'){o.hv++;if(b)o.hvb++}if(io){o.on++;if(b)o.onb++}if(iof){o.off++;if(b)o.offb++}
+    pz.forEach(function(c){var q=c.slice(0,3);if(q==='P02')o.p2++;else if(q==='P03')o.p3++;else if(q==='P04')o.p4++})}
+  K.forEach(function(k){var o=by[k.dd];if(!o){if(!A.some(function(x){return x.dd===k.dd}))return;o=by[k.dd]=mk()}o.mct+=k.ct;o.mth+=k.th;o.mcl+=k.cl;T.mct+=k.ct;T.mth+=k.th;T.mcl+=k.cl});
   A.forEach(function(k){k.c0Day=(st.day===TDOM?k.c0:k.cf);var o=by[k.dd]||(by[k.dd]=mk());add(o,k);add(T,k)});
-  var P=pcStat(A);
   var rows=Object.keys(by).map(Number).sort(function(a,b){return by[b].ct-by[a].ct});
-  function pcell(o){var p=pc(o.th,o.ct);if(!live)return '<td>–</td>';var c=p>=100?'g':p>=80?'w':'r',col=p>=100?'#34d3b5':p>=80?'#fbbf24':'#ff7a85';
-    return '<td><span class="pbx"><i style="width:'+Math.min(100,p)+'%;background:'+col+'"></i></span><span class="'+c+'">'+p.toFixed(0)+'%</span></td>'}
-  function row(o,nm,cl,p){var pp=p||{t:{pc:0},tl:0};
-    return '<tr class="'+cl+'"><td class="nm">'+nm+'</td><td>'+n(o.kh)+'</td><td>'+m(o.ct)+'</td><td>'+(live?m(o.th):'–')+'</td>'+pcell(o)+'<td>'+(live?m(Math.max(o.ct-o.th,0)):'–')+'</td>'+
-     '<td>'+(live?n(o.buy):'–')+'</td><td><span class="zz">'+n(o.zon+o.zoff)+'</span> <span style="color:var(--muted);font-size:11px">('+n(o.zon)+'·'+n(o.zoff)+')</span></td>'+
-     '<td class="am">'+n(Math.max(o.hv-o.hvb,0))+'</td><td class="vi">'+n(Math.max(o.on-o.onb,0))+'</td><td class="te">'+n(Math.max(o.off-o.offb,0))+'</td>'+
-     '<td>'+(live?n(pp.t.pc):'–')+'</td><td>'+(live&&pp.t.pc?d1(pp.tl):'–')+'</td></tr>'}
-  var h='<div class="sn-h"><div><div class="a">Kênh GT · NPP Tâm Hạnh Đà Nẵng</div><h3>Tổng quan Team SS Pháp · '+dlab(st.day)+'</h3></div><div class="b">Đơn cập nhật đến <b>'+D.ordTo+'</b><br>Tháng 10/2026 · '+Object.keys(by).length+' DDKD · '+n(T.kh)+' KH lịch</div></div>';
+  function pcs(L){return pcStat(L)}
+  var P=pcs(A);
+  var COLS=['DDKD','KH lịch','CT ngày (tr)','TH ngày (tr)','% đạt ngày','Thiếu ngày (tr)','KH đã mua nay','CT tháng (tr)','TH tháng (tr)','% tháng','Còn lại tháng (tr)','Chưa mua T10 - ON','Chưa mua T10 - OFF','Cần chốt HV','Combo ON cần thêm','Combo OFF cần thêm','PC nay','LPPC nay','KH cần P02','KH cần P03','KH cần P04'];
+  function vals(o,nm,p){var pp=pc(o.th,o.ct);return [nm,o.kh,o.ct/1e6,live?o.th/1e6:null,live?pp/100:null,live?Math.max(o.ct-o.th,0)/1e6:null,live?o.buy:null,o.mct/1e6,o.mth/1e6,pc(o.mth,o.mct)/100,o.mcl/1e6,o.zon,o.zoff,Math.max(o.hv-o.hvb,0),Math.max(o.on-o.onb,0),Math.max(o.off-o.offb,0),live?p.t.pc:null,(live&&p.t.pc)?+p.tl.toFixed(2):null,o.p2,o.p3,o.p4]}
+  var data=[vals(T,'CẢ TEAM',P)];
+  rows.forEach(function(i){data.push(vals(by[i],DDL[i],pcs(A.filter(function(k){return k.dd===i}))))});
+  var kh=[['Mã KH','Tên KH','DDKD','Phường','Địa chỉ','Lịch','Tần suất','Lần viếng còn lại','CT ngày (đ)','TH hôm nay (đ)','Còn lại tháng (đ)','Số đơn T10','Hội viên','Combo','Nhóm','Chưa mua T10']];
+  A.slice().sort(function(a,b){return a.dd-b.dd||b.c0Day-a.c0Day}).forEach(function(k){var io=k.cb.some(function(c){return c.indexOf('P0')===0});
+    kh.push([k.ma,k.ten,DDL[k.dd],k.ph,k.dc,k.lich,'F'+k.f,k.lan,k.c0Day,k.tha,k.cl,k.nord,k.hv||'',k.cb.join(' | '),io?'ON':'OFF',k.nord===0?'Có':'Không'])});
+  SNAP={cols:COLS,data:data,kh:kh,title:dlab(st.day)};
+  function f1(x){return x==null?'–':m(x*1e6)}
+  function cell(i,v){
+    if(v==null)return '<td>–</td>';
+    if(i===0)return '<td class="nm">'+esc(v)+'</td>';
+    if(i===4||i===9){var c=v>=1?'g':v>=.8?'w':'r',col=v>=1?'#34d3b5':v>=.8?'#fbbf24':'#ff7a85';return '<td><span class="pbx"><i style="width:'+Math.min(100,v*100)+'%;background:'+col+'"></i></span><span class="'+c+'">'+(v*100).toFixed(0)+'%</span></td>'}
+    if([2,3,5,7,8,10].indexOf(i)>=0)return '<td>'+f1(v)+'</td>';
+    if(i===17)return '<td>'+d1(v)+'</td>';
+    var cl=i===11||i===12?'zz':i===13?'am':i===14?'vi':i===15?'te':'';return '<td'+(cl?' class="'+cl+'"':'')+'>'+n(v)+'</td>'}
+  var h='<div class="sn-h"><div><div class="a">Kênh GT · NPP Tâm Hạnh Đà Nẵng</div><h3>Tổng quan chi tiết theo DDKD · '+dlab(st.day)+'</h3></div><div class="b">Đơn cập nhật đến <b>'+D.ordTo+'</b><br>Tháng 10/2026 · '+rows.length+' DDKD · '+n(T.kh)+' KH lịch</div><button class="xbtn" id="xbtn" type="button">⬇ Xuất Excel</button></div>';
   var pt=pc(T.th,T.ct),pcl=pt>=100?'g':pt>=80?'w':'r';
   function box(k,v,nn,c){return '<div><div class="k">'+k+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+nn+'</div></div>'}
-  h+='<div class="sn-t">'+box('Chỉ tiêu ngày',mt(T.ct),n(T.kh)+' KH lịch')+box('Thực hiện',live?mt(T.th):'–',live?'đã mua '+n(T.buy)+' KH':'chờ file đơn','g')+box('% đạt ngày',live?pt.toFixed(0)+'%':'–','',live?pcl:'')+box('Còn thiếu',live?mt(Math.max(T.ct-T.th,0)):'–','trong ngày','r')+box('PC · LPPC',live?n(P.t.pc)+' · '+(P.t.pc?d1(P.tl):'–'):'–','TB '+WNAME[wdOf(st.day||TDOM)]+': '+d1(P.wpc)+' · '+(P.wpc?d1(P.wl):'–'))+box('Còn lại cả tháng',mt(A.reduce(function(a,k){return a+k.cl},0)),'đã trừ TH')+'</div>';
-  h+='<table><thead><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT ngày<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Đã mua<small>KH nay</small></th><th>Chưa mua T10<small>tổng (ON·OFF)</small></th><th>Chốt HV<small>cần thêm</small></th><th>Combo ON<small>cần thêm</small></th><th>Combo OFF<small>cần thêm</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
-  h+=row(T,'CẢ TEAM','tt',P);
-  rows.forEach(function(i){var L=A.filter(function(k){return k.dd===i});h+=row(by[i],esc(DDL[i]),st.dds.indexOf(DDL[i])>=0?'sel':'',pcStat(L))});
-  h+='</tbody></table><div class="sn-f">ON = KH thuộc diện combo P02/P03/P04; OFF = KH thuộc combo Homey/HPC/Canu/Core. "Cần thêm" = số quầy chưa có đơn hôm nay. "Chưa mua T10" = quầy chưa có đơn nào từ đầu tháng. Còn lại đã trừ doanh số thực hiện.</div>';
+  h+='<div class="sn-t">'+box('Chỉ tiêu ngày',mt(T.ct),n(T.kh)+' KH lịch')+box('Thực hiện',live?mt(T.th):'–',live?'đã mua '+n(T.buy)+' KH':'chờ file đơn','g')+box('% đạt ngày',live?pt.toFixed(0)+'%':'–','',live?pcl:'')+box('Còn thiếu',live?mt(Math.max(T.ct-T.th,0)):'–','trong ngày','r')+box('PC · LPPC',live?n(P.t.pc)+' · '+(P.t.pc?d1(P.tl):'–'):'–','TB '+WNAME[wdOf(st.day||TDOM)]+': '+d1(P.wpc)+' · '+(P.wpc?d1(P.wl):'–'))+box('Còn lại cả tháng',mt(T.mcl),'toàn bộ KH, đã trừ TH')+'</div>';
+  h+='<table><thead><tr class="gr"><th></th><th colspan="6">Trong ngày</th><th colspan="4">Cả tháng (toàn bộ KH)</th><th colspan="2">Chưa mua T10</th><th colspan="3">Cần thêm quầy</th><th colspan="2">Bán hàng</th></tr><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Đã mua<small>KH nay</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>%<small>tháng</small></th><th>Còn lại<small>triệu</small></th><th>ON<small>quầy</small></th><th>OFF<small>quầy</small></th><th>Chốt HV<small>quầy</small></th><th>Combo ON<small>quầy</small></th><th>Combo OFF<small>quầy</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
+  data.forEach(function(r,ri){var nm=ri?r[0]:null;h+='<tr class="'+(ri===0?'tt':(st.dds.indexOf(r[0])>=0?'sel':''))+'">';
+    for(var i=0;i<18;i++)h+=cell(i,r[i]);h+='</tr>'});
+  h+='</tbody></table><div class="sn-f">ON = KH thuộc diện combo P02/P03/P04; OFF = KH thuộc combo Homey/HPC/Canu/Core. "Cần thêm" = số quầy chưa có đơn hôm nay. "Chưa mua T10" = quầy lịch hôm nay chưa có đơn nào từ đầu tháng. Còn lại tháng đã trừ doanh số thực hiện. Còn lại tháng = tổng phần chưa đạt của từng KH/ngành (không bù phần vượt), nên có thể lớn hơn CT − TH. Nút Xuất Excel gồm 2 sheet: tổng quan DDKD và danh sách KH của ngày.</div>';
   $('snap').innerHTML=h;
-  var sw=$('snapw');if(!sw.style)return;var w=sw.clientWidth||960,z=Math.min(1,w/960);$('snap').style.transform='scale('+z+')';sw.style.height=($('snap').offsetHeight*z)+'px';
+  var xb=$('xbtn');if(xb&&xb.addEventListener)xb.addEventListener('click',exportXlsx);
+  var sw=$('snapw');if(!sw.style)return;var w=sw.clientWidth||1220,z=Math.max(Math.min(1,w/1220),w<700?0.62:0);$('snap').style.transform='scale('+z+')';sw.style.height=($('snap').offsetHeight*z)+'px'
 }
+function crc32(u){var t=crc32.t;if(!t){t=crc32.t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}}var c=0xFFFFFFFF;for(var i=0;i<u.length;i++)c=t[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipStore(files){var enc=new TextEncoder(),parts=[],cen=[],off=0;
+  function u16(v){return [v&255,v>>8&255]}function u32(v){return [v&255,v>>8&255,v>>16&255,v>>>24&255]}
+  files.forEach(function(f){var nm=enc.encode(f[0]),d=enc.encode(f[1]),c=crc32(d);
+    var lh=[].concat([0x50,0x4b,3,4],u16(20),u16(0x800),u16(0),u16(0),u16(0x21),u32(c),u32(d.length),u32(d.length),u16(nm.length),u16(0));
+    parts.push(new Uint8Array(lh),nm,d);
+    cen.push([].concat([0x50,0x4b,1,2],u16(20),u16(20),u16(0x800),u16(0),u16(0),u16(0x21),u32(c),u32(d.length),u32(d.length),u16(nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off)),Array.prototype.slice.call(nm));
+    off+=lh.length+nm.length+d.length});
+  var cd=[].concat.apply([],cen);parts.push(new Uint8Array(cd));
+  parts.push(new Uint8Array([].concat([0x50,0x4b,5,6],u16(0),u16(0),u16(files.length),u16(files.length),u32(cd.length),u32(off),u16(0))));
+  var tot=0;parts.forEach(function(p){tot+=p.length});var o=new Uint8Array(tot),q=0;parts.forEach(function(p){o.set(p,q);q+=p.length});return o}
+function colL(i){var s='';i++;while(i>0){var r=(i-1)%26;s=String.fromCharCode(65+r)+s;i=Math.floor((i-1)/26)}return s}
+function xesc(v){return String(v).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]}).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'')}
+function sheetXml(rows,pctCols){var x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="26" customWidth="1"/><col min="2" max="30" width="16" customWidth="1"/></cols><sheetData>';
+  rows.forEach(function(r,ri){x+='<row r="'+(ri+1)+'">';r.forEach(function(v,ci){if(v==null||v==='')return;var ref=colL(ci)+(ri+1);
+    if(ri===0)x+='<c r="'+ref+'" s="1" t="inlineStr"><is><t>'+xesc(v)+'</t></is></c>';
+    else if(typeof v==='number'){x+='<c r="'+ref+'"'+(pctCols.indexOf(ci)>=0?' s="2"':(v%1?' s="3"':''))+'><v>'+v+'</v></c>'}
+    else x+='<c r="'+ref+'" t="inlineStr"><is><t>'+xesc(v)+'</t></is></c>'});x+='</row>'});
+  return x+'</sheetData></worksheet>'}
+function buildXlsx(sheets){var f=[];
+  f.push(['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map(function(_,i){return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'}).join('')+'</Types>']);
+  f.push(['_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>']);
+  f.push(['xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheets.map(function(s,i){return '<sheet name="'+xesc(s.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'}).join('')+'</sheets></workbook>']);
+  f.push(['xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map(function(_,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'}).join('')+'<Relationship Id="rId99" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>']);
+  f.push(['xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF5B63E6"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="4"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="9" applyNumberFormat="1"/><xf numFmtId="164" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>']);
+  sheets.forEach(function(s,i){f.push(['xl/worksheets/sheet'+(i+1)+'.xml',sheetXml(s.rows,s.pct||[])])});
+  return zipStore(f)}
+function exportXlsx(){if(!SNAP)return;
+  var u=buildXlsx([{name:'Tong quan DDKD',rows:[SNAP.cols].concat(SNAP.data),pct:[4,9]},{name:'Danh sach KH',rows:SNAP.kh}]);
+  var bl=new Blob([u],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),a=document.createElement('a'),nm=('Tracking_SS_Phap_'+SNAP.title+'_'+D.ordTo).replace(/[^0-9A-Za-zÀ-ỹ]+/g,'_')+'.xlsx';
+  a.href=URL.createObjectURL(bl);a.download=nm;document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},500)}
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',function(){try{renderSnap()}catch(e){}});
 function th(icn,txt,sub){return '<th class="num">'+(icn?ic(icn):'')+txt+(sub?'<small>'+sub+'</small>':'')+'</th>'}
 function renderTeam(){
