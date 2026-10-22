@@ -271,6 +271,28 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 @media(max-width:1180px){.hero{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
 @media(max-width:760px){.hero{padding:16px;gap:14px}.ringw{flex-direction:column;align-items:stretch}.ring{margin:0 auto;width:140px;height:140px}.hstats{grid-template-columns:1fr 1fr}.ch .row{grid-template-columns:100px 1fr 104px;font-size:12px}.hrs{gap:3px}}
 #kpis{display:none}
+
+#hero{display:none}
+#snapw{margin-bottom:12px;overflow:hidden}
+#snap{width:960px;box-sizing:border-box;transform-origin:0 0;border-radius:20px;border:1.5px solid var(--line);background:linear-gradient(160deg,rgba(91,99,230,.14),rgba(249,115,22,.07) 55%,var(--panel));padding:22px 24px 16px}
+.sn-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+.sn-h .a{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);font-weight:800}.sn-h h3{margin:4px 0 0;font-size:24px;font-weight:800;letter-spacing:-.01em}
+.sn-h .b{text-align:right;font-size:12px;color:var(--muted);line-height:1.5}.sn-h .b b{color:var(--fg)}
+.sn-t{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px}
+.sn-t>div{padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}
+.sn-t .k{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}.sn-t .v{font-size:21px;font-weight:800;margin-top:3px;font-variant-numeric:tabular-nums;white-space:nowrap}.sn-t .n{font-size:11px;color:var(--muted);margin-top:1px}
+#snap table{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+#snap th{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;text-align:right;padding:6px 6px;border-bottom:1.5px solid var(--line);white-space:nowrap;line-height:1.25}
+#snap th:first-child,#snap td:first-child{text-align:left}
+#snap th small{display:block;text-transform:none;letter-spacing:0;font-weight:500;font-size:10px}
+#snap td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+#snap tr.tt td{font-weight:800;background:rgba(91,99,230,.13);border-bottom:1.5px solid var(--line)}
+#snap tr.sel td:first-child{color:var(--orange)}
+#snap td.nm{max-width:170px;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+#snap .g{color:var(--teal);font-weight:700}#snap .w{color:var(--amber);font-weight:700}#snap .r{color:var(--coral);font-weight:700}
+#snap .pbx{display:inline-block;width:46px;height:7px;border-radius:6px;background:var(--line);vertical-align:middle;margin-right:6px;overflow:hidden}#snap .pbx i{display:block;height:100%}
+#snap .zz{color:var(--coral);font-weight:800}#snap .vi{color:var(--violet);font-weight:700}#snap .te{color:var(--teal);font-weight:700}#snap .am{color:var(--amber);font-weight:700}
+.sn-f{margin-top:10px;font-size:11px;color:var(--muted);line-height:1.5}
 </style></head><body>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -309,6 +331,7 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 
 <section id="s-kpi">
   <div class="ey" id="kt">Tổng quan</div>
+  <div id="snapw"><div id="snap"></div></div>
   <div id="hero"></div>
   <div class="focus" id="foc"></div>
   <div class="kpis" id="kpis"></div>
@@ -527,6 +550,36 @@ function renderCharts(){
   $('chHr').innerHTML=g;
   Array.prototype.forEach.call(document.querySelectorAll('#chDD [data-ic],#chHr [data-ic]'),function(e){if(!e.firstChild)e.innerHTML=ic(e.getAttribute('data-ic'))});
 }
+
+function renderSnap(){
+  var isT=st.day===TDOM,live=isT&&D.hasToday,A=dayKH(),by={};
+  function mk(){return {kh:0,ct:0,th:0,buy:0,zon:0,zoff:0,hv:0,hvb:0,on:0,onb:0,off:0,offb:0,pcn:0}}
+  var T=mk();
+  function add(o,k){var b=k.tha>0,io=k.cb.some(function(c){return c.indexOf('P0')===0}),iof=k.cb.some(function(c){return c.indexOf('P0')!==0});
+    o.kh++;o.ct+=k.c0Day;o.th+=k.tha;if(b)o.buy++;if(k.nord===0){if(io)o.zon++;else o.zoff++}
+    if(k.hv==='Cần chốt HV'){o.hv++;if(b)o.hvb++}if(io){o.on++;if(b)o.onb++}if(iof){o.off++;if(b)o.offb++}}
+  A.forEach(function(k){k.c0Day=(st.day===TDOM?k.c0:k.cf);var o=by[k.dd]||(by[k.dd]=mk());add(o,k);add(T,k)});
+  var P=pcStat(A);
+  var rows=Object.keys(by).map(Number).sort(function(a,b){return by[b].ct-by[a].ct});
+  function pcell(o){var p=pc(o.th,o.ct);if(!live)return '<td>–</td>';var c=p>=100?'g':p>=80?'w':'r',col=p>=100?'#34d3b5':p>=80?'#fbbf24':'#ff7a85';
+    return '<td><span class="pbx"><i style="width:'+Math.min(100,p)+'%;background:'+col+'"></i></span><span class="'+c+'">'+p.toFixed(0)+'%</span></td>'}
+  function row(o,nm,cl,p){var pp=p||{t:{pc:0},tl:0};
+    return '<tr class="'+cl+'"><td class="nm">'+nm+'</td><td>'+n(o.kh)+'</td><td>'+m(o.ct)+'</td><td>'+(live?m(o.th):'–')+'</td>'+pcell(o)+'<td>'+(live?m(Math.max(o.ct-o.th,0)):'–')+'</td>'+
+     '<td>'+(live?n(o.buy):'–')+'</td><td><span class="zz">'+n(o.zon+o.zoff)+'</span> <span style="color:var(--muted);font-size:11px">('+n(o.zon)+'·'+n(o.zoff)+')</span></td>'+
+     '<td class="am">'+n(Math.max(o.hv-o.hvb,0))+'</td><td class="vi">'+n(Math.max(o.on-o.onb,0))+'</td><td class="te">'+n(Math.max(o.off-o.offb,0))+'</td>'+
+     '<td>'+(live?n(pp.t.pc):'–')+'</td><td>'+(live&&pp.t.pc?d1(pp.tl):'–')+'</td></tr>'}
+  var h='<div class="sn-h"><div><div class="a">Kênh GT · NPP Tâm Hạnh Đà Nẵng</div><h3>Tổng quan Team SS Pháp · '+dlab(st.day)+'</h3></div><div class="b">Đơn cập nhật đến <b>'+D.ordTo+'</b><br>Tháng 10/2026 · '+Object.keys(by).length+' DDKD · '+n(T.kh)+' KH lịch</div></div>';
+  var pt=pc(T.th,T.ct),pcl=pt>=100?'g':pt>=80?'w':'r';
+  function box(k,v,nn,c){return '<div><div class="k">'+k+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+nn+'</div></div>'}
+  h+='<div class="sn-t">'+box('Chỉ tiêu ngày',mt(T.ct),n(T.kh)+' KH lịch')+box('Thực hiện',live?mt(T.th):'–',live?'đã mua '+n(T.buy)+' KH':'chờ file đơn','g')+box('% đạt ngày',live?pt.toFixed(0)+'%':'–','',live?pcl:'')+box('Còn thiếu',live?mt(Math.max(T.ct-T.th,0)):'–','trong ngày','r')+box('PC · LPPC',live?n(P.t.pc)+' · '+(P.t.pc?d1(P.tl):'–'):'–','TB '+WNAME[wdOf(st.day||TDOM)]+': '+d1(P.wpc)+' · '+(P.wpc?d1(P.wl):'–'))+box('Còn lại cả tháng',mt(A.reduce(function(a,k){return a+k.cl},0)),'đã trừ TH')+'</div>';
+  h+='<table><thead><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT ngày<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Đã mua<small>KH nay</small></th><th>Chưa mua T10<small>tổng (ON·OFF)</small></th><th>Chốt HV<small>cần thêm</small></th><th>Combo ON<small>cần thêm</small></th><th>Combo OFF<small>cần thêm</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
+  h+=row(T,'CẢ TEAM','tt',P);
+  rows.forEach(function(i){var L=A.filter(function(k){return k.dd===i});h+=row(by[i],esc(DDL[i]),st.dds.indexOf(DDL[i])>=0?'sel':'',pcStat(L))});
+  h+='</tbody></table><div class="sn-f">ON = KH thuộc diện combo P02/P03/P04; OFF = KH thuộc combo Homey/HPC/Canu/Core. "Cần thêm" = số quầy chưa có đơn hôm nay. "Chưa mua T10" = quầy chưa có đơn nào từ đầu tháng. Còn lại đã trừ doanh số thực hiện.</div>';
+  $('snap').innerHTML=h;
+  var sw=$('snapw');if(!sw.style)return;var w=sw.clientWidth||960,z=Math.min(1,w/960);$('snap').style.transform='scale('+z+')';sw.style.height=($('snap').offsetHeight*z)+'px';
+}
+if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('resize',function(){try{renderSnap()}catch(e){}});
 function th(icn,txt,sub){return '<th class="num">'+(icn?ic(icn):'')+txt+(sub?'<small>'+sub+'</small>':'')+'</th>'}
 function renderTeam(){
   var all=dayKH(),isT=(st.day===TDOM),live=isT&&D.hasToday;
@@ -640,7 +693,7 @@ function renderR3(){
   h+='</tbody><tfoot>'+line('Cả team',T.t7,T.t8,T.t9,T.c9,T.ct,T.th,true)+'</tfoot>';
   $('r3').innerHTML=h;
 }
-function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderCharts();renderTeam();renderList(L);renderBars(L)}
+function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderSnap();renderCharts();renderTeam();renderList(L);renderBars(L)}
 function reset(){st.lim=80;st.open=null}
 Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'),function(e){e.insertAdjacentHTML('afterbegin',ic(e.dataset.ic))});
 $('lg').innerHTML=ic('logo');
