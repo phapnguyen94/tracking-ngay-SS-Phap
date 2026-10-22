@@ -299,6 +299,7 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 #zbox .zsum{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 10px}.zc{padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);font-size:13px}.zc b{font-size:18px}.zc i{font-style:normal;color:var(--teal);font-weight:700}.zc em{font-style:normal;color:var(--coral);font-weight:700}
 .zc.on{border-color:rgba(182,156,255,.6)}.zc.off{border-color:rgba(52,211,181,.55)}
 .foc.f-zon,.foc.f-zoff{cursor:pointer}
+.zrow{display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap}.zrow .zl b{color:var(--coral)}.zrow>div:first-child b{color:var(--teal)}
 </style>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -510,12 +511,17 @@ function renderKpi(){
     if(k.hv==='Cần chốt HV'&&b)hvb++});
   function ft(cls,ico,lab,tot,done,sub){var need=Math.max(tot-done,0),pp=tot?done/tot*100:0;
     return '<div class="foc card '+cls+'"><div class="fh">'+ic(ico)+'<span>'+lab+'</span></div><div class="fn"><b>'+n(need)+'</b><span>quầy cần thêm</span></div><div class="pb"><i style="width:'+Math.min(100,pp)+'%"></i></div><div class="fs">'+(D.hasToday&&isT?'Đã chốt '+n(done)+' / '+n(tot)+' quầy':'Cần chốt '+n(tot)+' quầy lịch '+dlab(st.day))+' • '+sub+'</div></div>'}
-var zon=0,zoff=0,zonc=0,zoffc=0;
-  L.forEach(function(k){if(k.nord===0){var io=k.cb.some(function(c){return c.indexOf('P0')===0});if(io){zon++;zonc+=k.cn}else{zoff++;zoffc+=k.cn}}});
-  function zt(cls,lab,c,ct){return '<div class="foc card '+cls+'" onclick="document.getElementById(\'zbox\').scrollIntoView({behavior:\'smooth\'})"><div class="fh">'+ic('x')+'<span>'+lab+'</span></div><div class="fn"><b>'+n(c)+'</b><span>quầy chưa mua từ đầu T10</span></div><div class="fs">Chưa có đơn nào đến '+D.ordTo+' • CT ngày '+mt(ct)+' đang bỏ ngỏ</div></div>'}
+var zon=0,zoff=0,zonc=0,zoffc=0,don=0,doff=0,liveF=isT&&D.hasToday;
+  L.forEach(function(k){var io=k.cb.some(function(c){return c.indexOf('P0')===0});
+    if(k.nord===0){if(io){zon++;zonc+=k.cn}else{zoff++;zoffc+=k.cn}}
+    else if(liveF&&k.tho>0&&k.nord===k.tho){if(io)don++;else doff++}});
+  function zt(cls,lab,c,ct,dn){var tot=c+dn,pp=tot?dn/tot*100:0;
+    return '<div class="foc card '+cls+'" onclick="document.getElementById(\'zbox\').scrollIntoView({behavior:\'smooth\'})"><div class="fh">'+ic('x')+'<span>'+lab+'</span></div>'+
+    (liveF?'<div class="zrow"><div><div class="fn"><b>'+n(dn)+'</b><span>quầy hôm nay đã mua</span></div></div><div class="zl"><div class="fn"><b>'+n(c)+'</b><span>còn chưa mua</span></div></div></div><div class="pb"><i style="width:'+pp+'%"></i></div><div class="fs">Đầu ngày '+n(tot)+' quầy chưa mua T10 → hôm nay mở bán được '+n(dn)+' quầy ('+pp.toFixed(0)+'%) • còn lại '+n(c)+' quầy, CT ngày '+mt(ct)+' đang bỏ ngỏ</div>'
+      :'<div class="fn"><b>'+n(c)+'</b><span>quầy chưa mua từ đầu T10</span></div><div class="fs">Chưa có đơn nào đến '+D.ordTo+' • CT ngày '+mt(ct)+' đang bỏ ngỏ</div>')+'</div>'}
   $('foc').innerHTML=ft('f-hv','award','Chốt hội viên',hv,hvb,'CT ngày '+mt(hcn))+
     ft('f-on','cart','Combo ON (P02 · P03 · P04)',on,onb,'P02 '+pm.P02+' · P03 '+pm.P03+' · P04 '+pm.P04)+
-    ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo')+zt('f-zon','Chưa mua T10 · quầy ON',zon,zonc)+zt('f-zoff','Chưa mua T10 · quầy OFF',zoff,zoffc);
+    ft('f-off','cart','Combo OFF (Homey · HPC · Canu · Core)',off,offb,'KH thuộc diện mở combo')+zt('f-zon','Chưa mua T10 · quầy ON',zon,zonc,don)+zt('f-zoff','Chưa mua T10 · quầy OFF',zoff,zoffc,doff);
   $('kpis').innerHTML=
    card('k-o','KH '+(none?'hết lịch T10':dlab(st.day)),'cal',n(L.length),(none?'F2 không còn tuần viếng của mình trong T10':nd+' DDKD • F2 '+F[2]+' · F4 '+F[4]+' · F8 '+F[8]))+
    card('k-o','Chỉ tiêu phải bán ngày','target',none?'—':mt(cn),none?'Không có ngày viếng để chia chỉ tiêu':n(cn)+' đ • còn lại ÷ số lần viếng của từng KH')+
