@@ -575,7 +575,8 @@ function renderSnap(){
   var kh=[['Mã KH','Tên KH','DDKD','Phường','Địa chỉ','Lịch','Tần suất','Lần viếng còn lại','CT ngày (đ)','TH hôm nay (đ)','Còn lại tháng (đ)','Số đơn T10','Hội viên','Combo','Nhóm','Chưa mua T10']];
   A.slice().sort(function(a,b){return a.dd-b.dd||b.c0Day-a.c0Day}).forEach(function(k){var io=k.cb.some(function(c){return c.indexOf('P0')===0});
     kh.push([k.ma,k.ten,DDL[k.dd],k.ph,k.dc,k.lich,'F'+k.f,k.lan,k.c0Day,k.tha,k.cl,k.nord,k.hv||'',k.cb.join(' | '),io?'ON':'OFF',k.nord===0?'Có':'Không'])});
-  SNAP={cols:COLS,data:data,kh:kh,title:dlab(st.day)};
+  var ORD=[0,1,2,3,4,5,7,8,9,10,11,12,6,13,14,15,16,17,18,19,20];
+  SNAP={cols:ORD.map(function(i){return COLS[i]}),data:data.map(function(r){return ORD.map(function(i){return r[i]})}),kh:kh,title:dlab(st.day)};
   function f1(x){return x==null?'–':m(x*1e6)}
   function cell(i,v){
     if(v==null)return '<td>–</td>';
@@ -588,9 +589,9 @@ function renderSnap(){
   var pt=pc(T.th,T.ct),pcl=pt>=100?'g':pt>=80?'w':'r';
   function box(k,v,nn,c){return '<div><div class="k">'+k+'</div><div class="v '+(c||'')+'">'+v+'</div><div class="n">'+nn+'</div></div>'}
   h+='<div class="sn-t">'+box('Chỉ tiêu ngày',mt(T.ct),n(T.kh)+' KH lịch')+box('Thực hiện',live?mt(T.th):'–',live?'đã mua '+n(T.buy)+' KH':'chờ file đơn','g')+box('% đạt ngày',live?pt.toFixed(0)+'%':'–','',live?pcl:'')+box('Còn thiếu',live?mt(Math.max(T.ct-T.th,0)):'–','trong ngày','r')+box('PC · LPPC',live?n(P.t.pc)+' · '+(P.t.pc?d1(P.tl):'–'):'–','TB '+WNAME[wdOf(st.day||TDOM)]+': '+d1(P.wpc)+' · '+(P.wpc?d1(P.wl):'–'))+box('Còn lại cả tháng',mt(T.mcl),'toàn bộ KH, đã trừ TH')+'</div>';
-  h+='<table><thead><tr class="gr"><th></th><th colspan="6">Trong ngày</th><th colspan="4">Cả tháng (toàn bộ KH)</th><th colspan="2">Chưa mua T10</th><th colspan="3">Cần thêm quầy</th><th colspan="2">Bán hàng</th></tr><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>Chưa mua T10<small>nay có mua</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>%<small>tháng</small></th><th>Còn lại<small>triệu</small></th><th>ON<small>quầy</small></th><th>OFF<small>quầy</small></th><th>Chốt HV<small>quầy</small></th><th>Combo ON<small>quầy</small></th><th>Combo OFF<small>quầy</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
+  h+='<table><thead><tr class="gr"><th></th><th colspan="5">Trong ngày</th><th colspan="4">Cả tháng (toàn bộ KH)</th><th colspan="3">Chưa mua T10</th><th colspan="3">Cần thêm quầy</th><th colspan="2">Bán hàng</th></tr><tr><th>DDKD</th><th>KH<small>lịch</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>% đạt<small>ngày</small></th><th>Thiếu<small>triệu</small></th><th>CT<small>triệu</small></th><th>TH<small>triệu</small></th><th>%<small>tháng</small></th><th>Còn lại<small>triệu</small></th><th>ON<small>quầy</small></th><th>OFF<small>quầy</small></th><th>Nay có mua<small>KH</small></th><th>Chốt HV<small>quầy</small></th><th>Combo ON<small>quầy</small></th><th>Combo OFF<small>quầy</small></th><th>PC<small>nay</small></th><th>LPPC<small>nay</small></th></tr></thead><tbody>';
   data.forEach(function(r,ri){var nm=ri?r[0]:null;h+='<tr class="'+(ri===0?'tt':(st.dds.indexOf(r[0])>=0?'sel':''))+'">';
-    for(var i=0;i<18;i++)h+=cell(i,r[i]);h+='</tr>'});
+    ORD.slice(0,18).forEach(function(i){h+=cell(i,r[i])});h+='</tr>'});
   h+='</tbody></table><div class="sn-f">ON = KH thuộc diện combo P02/P03/P04; OFF = KH thuộc combo Homey/HPC/Canu/Core. "Cần thêm" = số quầy chưa có đơn hôm nay. "Chưa mua T10" = quầy lịch hôm nay chưa có đơn nào từ đầu tháng. Còn lại tháng đã trừ doanh số thực hiện. Còn lại tháng = tổng phần chưa đạt của từng KH/ngành (không bù phần vượt), nên có thể lớn hơn CT − TH. Nút Xuất Excel gồm 2 sheet: tổng quan DDKD và danh sách KH của ngày.</div>';
   $('snap').innerHTML=h;
   var xb=$('xbtn');if(xb&&xb.addEventListener)xb.addEventListener('click',exportXlsx);
@@ -623,7 +624,7 @@ function buildXlsx(sheets){var f=[];
   f.push(['xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="0.0"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF5B63E6"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="4"><xf/><xf fontId="1" fillId="2" applyFont="1" applyFill="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="9" applyNumberFormat="1"/><xf numFmtId="164" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>']);
   sheets.forEach(function(s,i){f.push(['xl/worksheets/sheet'+(i+1)+'.xml',sheetXml(s.rows,s.pct||[])])});
   return zipStore(f)}
-function exportXlsx(){if(!SNAP)return;dlXlsx([{name:'Tong quan DDKD',rows:[SNAP.cols].concat(SNAP.data),pct:[4,9]},{name:'Danh sach KH',rows:SNAP.kh}],'Tracking_SS_Phap_'+SNAP.title)}
+function exportXlsx(){if(!SNAP)return;dlXlsx([{name:'Tong quan DDKD',rows:[SNAP.cols].concat(SNAP.data),pct:[4,8]},{name:'Danh sach KH',rows:SNAP.kh}],'Tracking_SS_Phap_'+SNAP.title)}
 function dlXlsx(sh,base){
   var u=buildXlsx(sh);
   var bl=new Blob([u],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),a=document.createElement('a'),nm=(base+'_'+D.ordTo).replace(/[^0-9A-Za-zÀ-ỹ]+/g,'_')+'.xlsx';
