@@ -300,6 +300,32 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 .zc.on{border-color:rgba(182,156,255,.6)}.zc.off{border-color:rgba(52,211,181,.55)}
 .foc.f-zon,.foc.f-zoff{cursor:pointer}
 .zrow{display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap}.zrow .zl b{color:var(--coral)}.zrow>div:nth-child(2) b{color:var(--teal)}
+.so-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 12px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{border:0;background:var(--panel2);color:var(--muted);padding:8px 14px;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit}.seg button.on{background:var(--indigo-soft);color:var(--indigo)}
+.so-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.pad2{padding:18px 20px}
+.ph{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}.ph b{font-size:17px}.ph span{font-size:12.5px;color:var(--muted)}
+.so{padding:9px 0 7px;cursor:pointer;border-radius:10px}.so:hover{background:rgba(139,147,255,.07)}.so.open{background:rgba(139,147,255,.10)}
+.so .sr{display:grid;grid-template-columns:minmax(110px,34%) 1fr 74px;gap:12px;align-items:center}
+.so .sn{font-size:14.5px;font-weight:500}.so .sn em{font-style:normal;color:var(--muted);margin-left:6px;font-size:11px}
+.so .bar,.sobar .tk{position:relative;height:15px;border-radius:9px;background:var(--line);display:block}
+.so .bar i,.sobar .tk i{position:absolute;left:0;top:0;bottom:0;border-radius:9px}
+.mk{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--fg);border-radius:2px;transform:translateX(-1px)}
+.c-good{background:linear-gradient(90deg,#6ee7b7,#34d399)}.c-warn{background:linear-gradient(90deg,#e8a825,#c98700)}.c-bad{background:linear-gradient(90deg,#c0394b,#9b0d1a)}
+.t-good{color:var(--teal)}.t-warn{color:var(--amber)}.t-bad{color:var(--coral)}
+.so .sp{text-align:right;font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+.so .ss{margin:5px 0 0 calc(34% + 12px);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sd{margin:2px 0 10px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel2)}
+.sd table{font-size:12.5px}.sobar{display:inline-flex;align-items:center;gap:8px}.sobar .tk{width:90px;height:9px}.sobar .mk{top:-2px;bottom:-2px}.sp2{min-width:48px;display:inline-block;text-align:right}
+@media(max-width:1180px){.so-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.so .sr{grid-template-columns:96px 1fr 64px;gap:8px}.so .ss{margin-left:104px}.sobar .tk{width:56px}}
+.sd td,.sd th{white-space:nowrap}.sd td{padding:7px 8px}.sd .scroll{overflow-x:auto}
+.sdh{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:2px 4px 6px;border-bottom:1px solid var(--line)}
+.sdr{display:grid;grid-template-columns:minmax(120px,40%) 1fr;gap:2px 12px;padding:8px 4px;border-bottom:1px solid var(--line);align-items:center}.sdr:last-child{border:0}
+.sdr.sel .sdn{color:var(--orange)}.sdn{font-weight:700;font-size:13.5px}
+.sdb{display:flex;align-items:center;gap:8px}.sdb .tk{position:relative;flex:1;height:10px;border-radius:8px;background:var(--line)}.sdb .tk i{position:absolute;left:0;top:0;bottom:0;border-radius:8px}.sdb .mk{top:-2px;bottom:-2px}
+.sdv{grid-column:1/-1;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+@media(max-width:760px){.sdr{grid-template-columns:1fr}.sdb{order:2}.sdv{order:3}}
 </style>
 
 <div id="lock" class="lock" hidden><form id="lkf" class="card pad lkc" autocomplete="off"><div class="logo" id="lkl"></div><b>Dashboard SS Pháp</b><span class="note">Nhập mật khẩu để xem số liệu</span><input type="password" id="lkp" placeholder="Mật khẩu" autocomplete="current-password" aria-label="Mật khẩu"><label class="note"><input type="checkbox" id="lkr" checked> Ghi nhớ trên máy này</label><button class="more" type="submit" style="align-self:stretch">Mở dashboard</button><span class="note" id="lke" style="color:var(--bad)"></span></form></div>
@@ -368,10 +394,12 @@ td.hl-on b{color:var(--violet)}td.hl-off b{color:var(--teal)}
 
 <section class="card pad" id="s-sub">
   <div class="ey">Phân tích ngành</div>
-  <div class="sech"><div class="ib o" data-ic="layers"></div><div class="t">Ngành còn thiếu nhiều nhất <small>đ còn lại của phần đang lọc</small></div></div>
-  <div class="cols">
-    <div><div class="note">Theo Sub division</div><div id="bs"></div></div>
-    <div><div class="note">Top 12 DMS OBJ</div><div id="bd"></div></div>
+  <div class="sech"><div class="ib o" data-ic="layers"></div><div class="t">Sell Out theo ngành hàng <small>bấm vào một mục để khoan xuống DDKD</small></div></div>
+  <div class="so-top"><div class="seg" id="soseg"><button data-v="all" class="on">Toàn bộ KH</button><button data-v="day">KH lịch ngày đang chọn</button></div><button class="xbtn" id="xbtn4" type="button">⬇ Xuất Excel</button></div>
+  <div class="so-grid"><div class="card pad2" id="kpiN"></div><div class="card pad2" id="sellout"></div></div>
+  <div class="cols" style="margin-top:14px">
+    <div id="bsw" hidden><div class="note">Theo Sub division</div><div id="bs"></div></div>
+    <div><div class="note">Top 12 DMS OBJ còn thiếu</div><div id="bd"></div></div>
   </div>
 </section>
 
@@ -664,6 +692,49 @@ function renderZ(){
   $('zg').addEventListener('change',function(){st.zg=this.value;renderZ()});$('zb').addEventListener('change',function(){st.zb=this.value;renderZ()});
   $('xbtn3').addEventListener('click',function(){dlXlsx([{name:'Quay chua mua T10',rows:ZLIST}],'Quay_chua_mua_T10_'+dlab(st.day))});
 }
+
+var SOX=null;
+function workProg(){var last=new Date(Y,Mo+1,0).getDate(),t=0,e=0;for(var d=1;d<=last;d++){if(new Date(Y,Mo,d).getDay()===0)continue;t++;if(d<=TDOM)e++}return t?e/t*100:0}
+function aggSell(Ls){
+  var A={};
+  Ls.forEach(function(k){var ex={},bs={};(D.sx&&D.sx[k.ma]||[]).forEach(function(e){ex[e[0]]=(ex[e[0]]||0)+e[1]});
+    (S[k.ma]||[]).forEach(function(r){var o=bs[r[0]]||(bs[r[0]]={ct:0,th:0,cl:0});o.ct+=r[2];o.th+=r[3];o.cl+=r[4]});
+    Object.keys(ex).forEach(function(si){if(!bs[si])bs[si]={ct:0,th:0,cl:0}});
+    Object.keys(bs).forEach(function(si){var o=bs[si],e=ex[si]||0,th=o.th+e,cl=Math.max(o.cl-e,0);
+      var a=A[si]||(A[si]={ct:0,th:0,cl:0,dd:{}});a.ct+=o.ct;a.th+=th;a.cl+=cl;
+      var q=a.dd[k.dd]||(a.dd[k.dd]={ct:0,th:0,cl:0});q.ct+=o.ct;q.th+=th;q.cl+=cl})});
+  return A}
+function soCls(p,pr){return p>=pr?'good':p>=pr-10?'warn':'bad'}
+function renderSell(){
+  var all=(st.soScope||'all')==='all',Ls=all?K:base(),pr=workProg();
+  var A=aggSell(Ls);
+  // KPI nền tảng
+  var tot={ct:0,th:0,dd:{}},act={n:0,t:0,dd:{}};
+  Ls.forEach(function(k){tot.ct+=k.ct;tot.th+=k.th;var q=tot.dd[k.dd]||(tot.dd[k.dd]={ct:0,th:0,cl:0});q.ct+=k.ct;q.th+=k.th;q.cl+=k.cl;
+    act.t++;var h=k.nord>0;if(h)act.n++;var w=act.dd[k.dd]||(act.dd[k.dd]={ct:0,th:0,cl:0});w.ct++;if(h)w.th++});
+  var rowsK=[{key:'k:ds',name:'Doanh số & tiến độ',ct:tot.ct,th:tot.th,dd:tot.dd,money:1},{key:'k:act',name:'KH có đơn T10 (phủ ASO, tạm tính)',ct:act.t,th:act.n,dd:act.dd,money:0}];
+  var rowsS=Object.keys(A).map(function(si){var a=A[si];return {key:'s:'+si,name:SUBL[si],ct:a.ct,th:a.th,cl:a.cl,dd:a.dd,money:1}}).filter(function(r){return r.ct>0||r.th>0}).sort(function(a,b){return pc(b.th,b.ct)-pc(a.th,a.ct)});
+  SOX={rows:rowsK.concat(rowsS)};
+  function fmt(v,money){return money?n(v)+' đ':n(v)}
+  function fm2(v,money){return money?m(v):n(v)}
+  function drill(r){
+    var ks=Object.keys(r.dd).sort(function(a,b){return pc(r.dd[a].th,r.dd[a].ct)-pc(r.dd[b].th,r.dd[b].ct)});
+    var h='<div class="sd"><div class="sdh"><span>DDKD</span><span>% đạt · TH / CT'+(r.money?' (triệu)':'')+' · còn lại</span></div>';
+    ks.forEach(function(i){var q=r.dd[i],p=pc(q.th,q.ct),c=soCls(p,pr),rem=(r.key.indexOf('s:')===0&&q.cl!=null)?q.cl:Math.max(q.ct-q.th,0);
+      h+='<div class="sdr'+(st.dds.indexOf(DDL[i])>=0?' sel':'')+'"><div class="sdn">'+esc(DDL[i])+'</div><div class="sdb"><span class="tk"><i class="c-'+c+'" style="width:'+Math.min(100,p)+'%"></i><b class="mk" style="left:'+pr+'%"></b></span><b class="sp2 t-'+c+'">'+p.toFixed(1).replace('.',',')+'%</b></div><div class="sdv">TH '+fm2(q.th,r.money)+' / CT '+fm2(q.ct,r.money)+' · còn '+fm2(rem,r.money)+'</div></div>'});
+    return h+'</div>'}
+  function panel(title,sub,rows){
+    var h='<div class="ph"><b>'+title+'</b><span>'+sub+'</span></div>';
+    rows.forEach(function(r){var p=pc(r.th,r.ct),c=soCls(p,pr),open=st.soOpen===r.key;
+      h+='<div class="so'+(open?' open':'')+'" data-k="'+r.key+'" role="button" tabindex="0" aria-expanded="'+open+'"><div class="sr"><span class="sn">'+esc(r.name)+'<em>'+(open?'▾':'▸')+'</em></span><span class="bar"><i class="c-'+c+'" style="width:'+Math.min(100,p)+'%"></i><b class="mk" style="left:'+pr+'%"></b></span><span class="sp t-'+c+'">'+p.toFixed(2).replace('.',',')+'%</span></div><div class="ss">'+fmt(r.th,r.money)+' / '+fmt(r.ct,r.money)+'</div></div>'+(open?drill(r):'')});
+    return h||'<div class="note">Không có dữ liệu.</div>'}
+  $('kpiN').innerHTML=panel('KPI nền tảng','% đạt toàn team',rowsK);
+  $('sellout').innerHTML=panel('Sell Out theo ngành hàng','% đạt chỉ tiêu',rowsS)+'<div class="note" style="margin-top:8px">Vạch đen = tiến độ ngày làm việc ('+pr.toFixed(0)+'%, T2–T7 đến '+TDTXT+'). Xanh ≥ tiến độ, vàng trong 10 điểm, đỏ thấp hơn. TH ngành = file chỉ tiêu (đến '+dtxt(+D.baseDay)+') + đơn từ file LINE ITEM sau đó.</div>';
+}
+(function(){
+  if(document.addEventListener)document.addEventListener('click',function(e){var t=e.target;while(t&&t!==document&&!(t.getAttribute&&t.getAttribute('data-k')&&t.className.indexOf('so')>=0))t=t.parentNode;
+    if(!t||t===document||!t.getAttribute)return;var k=t.getAttribute('data-k');st.soOpen=st.soOpen===k?null:k;renderSell()});
+})();
 function th(icn,txt,sub){return '<th class="num">'+(icn?ic(icn):'')+txt+(sub?'<small>'+sub+'</small>':'')+'</th>'}
 function renderTeam(){
   var all=dayKH(),isT=(st.day===TDOM),live=isT&&D.hasToday;
@@ -767,7 +838,7 @@ function renderBars(L){
   L.forEach(function(k){(S[k.ma]||[]).forEach(function(r){if(r[4]>0){sg[r[0]]=(sg[r[0]]||0)+r[4];dm[r[1]]=(dm[r[1]]||0)+r[4]}})});
   function draw(id,o,names,lim){var ks=Object.keys(o).sort(function(a,b){return o[b]-o[a]}).slice(0,lim);var mx=ks.length?o[ks[0]]:1;
     $(id).innerHTML=ks.map(function(i){return '<div class="hb"><span>'+esc(names[i])+'</span><span class="t"><i style="width:'+(o[i]/mx*100)+'%"></i></span><span class="mono">'+m(o[i])+' tr</span></div>'}).join('')||'<div class="note">Không có dữ liệu.</div>'}
-  draw('bs',sg,SUBL,8);draw('bd',dm,DMSL,12);
+  draw('bd',dm,DMSL,12);
 }
 function renderR3(){
   if(!D.r3||!D.r3.length){$('r3').innerHTML='';return}
@@ -782,7 +853,7 @@ function renderR3(){
   h+='</tbody><tfoot>'+line('Cả team',T.t7,T.t8,T.t9,T.c9,T.ct,T.th,true)+'</tfoot>';
   $('r3').innerHTML=h;
 }
-function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderSnap();renderZ();renderCharts();renderTeam();renderList(L);renderBars(L)}
+function all(){K.forEach(function(k){k.cn=st.day===TDOM?k.c0:k.cf});var L=filt();renderSteps();renderKpi();renderHero();renderSnap();renderZ();renderSell();renderCharts();renderTeam();renderList(L);renderBars(L)}
 function reset(){st.lim=80;st.open=null}
 Array.prototype.forEach.call(document.querySelectorAll('[data-ic]'),function(e){e.insertAdjacentHTML('afterbegin',ic(e.dataset.ic))});
 $('lg').innerHTML=ic('logo');
@@ -791,6 +862,8 @@ $('fdot').className='dot'+(D.hasToday?'':' w');
 $('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st.day=+b.dataset.d;reset();all()});
 $('chk').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var d=b.dataset.n,i=st.dds.indexOf(d);if(i>=0)st.dds.splice(i,1);else st.dds.push(d);reset();all()});
 $('xbtn2').addEventListener('click',function(){if(!LISTX)return;dlXlsx([{name:'Danh sach KH',rows:LISTX.rows,pct:[12]}],'DS_KH_'+LISTX.title)});
+if($('soseg').querySelectorAll)Array.prototype.forEach.call($('soseg').querySelectorAll('button'),function(b){b.addEventListener('click',function(){st.soScope=b.getAttribute('data-v');Array.prototype.forEach.call($('soseg').querySelectorAll('button'),function(x){x.className=x===b?'on':''});st.soOpen=null;renderSell()})});
+$('xbtn4').addEventListener('click',function(){if(!SOX)return;var pr=workProg(),rows=[['Chỉ tiêu','DDKD','CT','TH','% đạt','Còn lại']];SOX.rows.forEach(function(r){rows.push([r.name,'CẢ TEAM',r.ct,r.th,r.ct?r.th/r.ct:0,r.cl!=null?r.cl:Math.max(r.ct-r.th,0)]);Object.keys(r.dd).forEach(function(i){var q=r.dd[i];rows.push([r.name,DDL[i],q.ct,q.th,q.ct?q.th/q.ct:0,r.key.indexOf('s:')===0?q.cl:Math.max(q.ct-q.th,0)])})});dlXlsx([{name:'Sell out nganh x DDKD',rows:rows,pct:[4]}],'SellOut_nganh_DDKD')});
 $('clr').addEventListener('click',function(){st.dds=[];reset();all()});
 $('tm').addEventListener('click',function(e){var r=e.target.closest('tr.rw');if(!r)return;var d=DDL[+r.dataset.dd],i=st.dds.indexOf(d);if(i>=0)st.dds.splice(i,1);else st.dds.push(d);reset();all()});
 $('tm').addEventListener('keydown',function(e){if((e.key==='Enter'||e.key===' ')&&e.target.matches('tr.rw')){e.preventDefault();e.target.click()}});

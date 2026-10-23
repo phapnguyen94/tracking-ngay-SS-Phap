@@ -64,6 +64,7 @@ def load_orders(files, data_dir, save):
 # --- đơn T10 theo KH
 od, tod, tod_n, ord_to, has_today, n_out = {}, {}, {}, '', False, 0
 hr = []
+sx = {}
 if a.orders or a.data:
     o = load_orders(a.orders, a.data, a.save)
     o['d'] = pd.to_datetime(o['Ngày tạo đơn'], format='%d/%m/%Y %H:%M:%S')
@@ -86,6 +87,10 @@ if a.orders or a.data:
     t['dd'] = t['Mã cửa hàng'].astype(int).map(kd)
     for r in t.groupby(['dd', 'h']).agg(a=('Thành tiền', 'sum'), n=('Mã SO', 'nunique')).reset_index().itertuples(index=False):
         hr.append([int(r[0]), int(r[1]), int(round(r[2])), int(r[3])])
+    bd_ = datetime.strptime(a.base_date, '%Y-%m-%d').date()
+    xs = o[(o['day'] > bd_) & (o['Sub Division'].fillna('') != '') & o['Mã cửa hàng'].isin(k['Mã KH'])]
+    for r in xs.groupby(['Mã cửa hàng', 'Sub Division'])['Thành tiền'].sum().reset_index().itertuples(index=False):
+        if r[1] in subi: sx.setdefault(str(int(r[0])), []).append([subi[r[1]], int(round(r[2]))])
     has_today = any(r[1] == today for r in g.itertuples(index=False))
 
 # --- lịch viếng thật theo Visit Schedule Report: thứ có lịch, tần suất, tuần lẻ/chẵn (ISO week)
@@ -149,7 +154,7 @@ if a.r3:
 
 data = json.dumps({'dd': dd, 'sub': sub, 'dms': dms, 'kh': kh, 's': S, 'r3': r3,
                    'today': today.isoformat(), 'todayName': today_name, 'hasToday': has_today,
-                   'hr': hr, 'ordTo': ord_to, 'ordOut': n_out, 'dates': dates, 'hasSched': bool(sch)}, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+                   'hr': hr, 'sx': sx, 'baseDay': int(a.base_date[-2:]), 'ordTo': ord_to, 'ordOut': n_out, 'dates': dates, 'hasSched': bool(sch)}, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
 if a.password:
     import base64
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
