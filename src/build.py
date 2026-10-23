@@ -8,6 +8,7 @@ ap.add_argument('--r3', default='')                           # CT_-_TH_789*.xls
 ap.add_argument('--sched', default='')                        # Visit_Schedule_Report*.xlsx (lịch viếng thật: thứ, tần suất F2/F4/F8, tuần lẻ/chẵn)
 ap.add_argument('--data', default='')       # thư mục lưu số liệu chính thức theo ngày
 ap.add_argument('--save', action='store_true')   # lưu số liệu các ngày có trong --orders vào --data (nạp chính thức buổi tối)
+ap.add_argument('--base-date', default='2026-10-21')   # ngày cuối cùng đã nằm trong số TH/Còn lại của file chỉ tiêu CSV
 ap.add_argument('--today', default='')                        # YYYY-MM-DD, mặc định hôm nay (UTC+7)
 ap.add_argument('--out', default='dashboard.html')
 ap.add_argument('--standalone', action='store_true')   # trang HTML độc lập (GitHub Pages)
@@ -116,9 +117,12 @@ for r in k.itertuples(index=False):
         wds = {WN.index(x.strip()) for x in r[6].split(',')}; freq = 'F8' if len(wds) > 1 else 'F4'; par = 'Both'
     vd = visits(wds, par, today.day, last_day); pv = visits(wds, par, 1, today.day - 1)
     lich = ','.join(WN[i] for i in sorted(wds))
-    cl0 = int(r[10]); lan = len(vd); cn = int(round(cl0 / lan)) if lan else 0   # CT ngày hôm nay: cố định theo số còn lại đầu ngày
+    base_day = datetime.strptime(a.base_date, '%Y-%m-%d').date()
+    # doanh số các ngày sau ngày chốt của file CSV và trước hôm nay: trừ vào Còn lại, cộng vào TH
+    prev = sum(x[2] for x in days if base_day.day < x[0] < today.day) if today.month == base_day.month else 0
+    cl0 = max(int(r[10]) - prev, 0); lan = len(vd); cn = int(round(cl0 / lan)) if lan else 0   # CT ngày hôm nay: cố định theo số còn lại đầu ngày
     ta = tod.get(ma, 0)                                  # doanh số đã thực hiện hôm nay -> trừ vào còn lại tháng
-    cl = max(cl0 - ta, 0); th_now = int(r[9]) + ta
+    cl = max(cl0 - ta, 0); th_now = int(r[9]) + prev + ta
     lan_f = lan - (1 if (ta > 0 and today.day in vd) else 0)   # KH đã mua hôm nay coi như xong lượt viếng hôm nay
     cf = int(round(cl / lan_f)) if lan_f else 0                # CT ngày/lần cho các ngày sau
     fnum = int(freq[1:]) if freq[1:].isdigit() else 4
